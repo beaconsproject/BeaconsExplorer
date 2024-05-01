@@ -1,0 +1,12 @@
+---
+title: "intro"
+output: html_document
+---
+
+### Workflow
+
+The flowchart below provides an overview of the intactness mapping workflow and its five steps. Each step is then described in more detail in the following paragraphs.
+<br><br>
+<center><img src="pics/intactness.png" width="65%">
+<br><br>Figure 1. Flowchart outlining the five steps used to map landscape intactness and human footprint for a study area of interest.*<br><br>
+</center>

@@ -1,0 +1,24 @@
+---
+title: "intro_tab"
+output: html_document
+---
+
+#### WORKFLOW
+
+Disturbance Explorer currently includes four components, or steps of a possible workflow. Each component includes two or more modules, which are possible analyses for that step.  
+
+**Components:**  
+
+**1.** *Create Data Package*  
+- Select existing study area e.g., FDA
+- Upload user-defined study area
+- Define area using catchments
+- Select data layers for package
+- Clip data layers to study area
+
+**3.** *Create Intactness/Footprint Maps*  
+- Identify linear and areal disturbances  
+- Select uniform linear and areal buffers
+- Define custom buffers by disturbance type
+- Create footprint and intactness map
+- Create potential footprint map
