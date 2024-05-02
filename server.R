@@ -1,5 +1,8 @@
 # Define server logic
 server <- function(input, output, session) {
+  # Initialize reactive values
+  sa_sf <- reactiveVal(NULL) # Initialize reactiveVal
+  up_module <- reactive({input$geoSel})
   
   # Initialize map
   output$map <- renderLeaflet({
@@ -12,21 +15,37 @@ server <- function(input, output, session) {
   
   # create map proxy to make further changes to existing map
   map <- leafletProxy("map")
-  
   # change provider tile option
   observe({
     map %>% addProviderTiles(input$bmap)
   })
   
-  gpkg <- callModule(geopackage, "geopackage_module")
-  
+  # Serve GEO UI according to input format (gpkg, shp)
+  observeEvent(input$geoSel, {
+     if (up_module() == "gpkg") {
+       output$up_module <- renderUI({
+         gpkgUI("upload_module")
+        })
+       sa_sf(callModule(gpkg_upload,"upload_module"))
+      
+    }else if (up_module() == "shp") {
+      output$up_module <- renderUI({
+        shpUI("upload_module")
+      })
+      sa_sf(callModule(shp_upload, "upload_module"))
+    }
+  })
+
   #### Map-related observers ####
-  observe({ # raster layers
-    map_bounds1 <- gpkg() %>% st_bbox() %>% as.character()
+  observeEvent(input$conf_sa,{ # 
+    #browser()
+    sa_sf <- sa_sf()() 
+    sa_sf <- sa_sf %>% st_transform(4326)
+    map_bounds1 <- sa_sf %>% st_bbox() %>% as.character()
     map %>% 
       clearGroup("Study area") %>%
       fitBounds(map_bounds1[1], map_bounds1[2], map_bounds1[3], map_bounds1[4]) %>%
-      addPolygons(data=gpkg(), weight=2, group="Study area")
+      addPolygons(data=sa_sf, weight=2, group="Study area")
   })
   
 }

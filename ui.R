@@ -32,7 +32,14 @@ tagList(
           conditionalPanel(
              condition="input.tabs == 'geo'",
              div("Create Data Package", class = "componentName"),
-             geopackageUI("geopackage_module")
+             radioButtons(inputId ="geoSel", 
+                          label = "Choose data format:",
+                          choices = c("Geopackage" = 'gpkg', "Shapefile" = 'shp'),
+                          selected = character(0),
+                          inline = TRUE),
+             uiOutput("up_module"),
+             actionButton("conf_sa", "Confirm")
+
           )
         )
       ),

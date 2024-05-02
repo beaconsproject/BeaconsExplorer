@@ -28,10 +28,6 @@ COMPONENT_MODULES <- list()
 # Load all Wallace base modules
 all_module_configs <- c(
   "modules/geo_upload.yml"#,
-  #"modules/geo_edit.yml",
-  #"modules/envs_worldclim.yml",
-  #"modules/envs_ecoclimate.yml",
-  #"modules/envs_userEnvs.yml"
 )
 
 for (module_config_file in all_module_configs) {
@@ -77,35 +73,6 @@ for (module_config_file in all_module_configs) {
   }
   temp_env <- new.env()
   source(module_config$file, local = temp_env)
-
-  ui_function <- glue("{id}_module_ui")
-  if (!exists(ui_function, envir = temp_env) || !is.function(get(ui_function, envir = temp_env))) {
-    stop(glue("Module {id}: Could not find a UI function named `{ui_function}`"),
-         call. = FALSE)
-  }
-  server_function <- glue("{id}_module_server")
-  if (!exists(server_function, envir = temp_env) || !is.function(get(server_function, envir = temp_env))) {
-    stop(glue("Module {id}: Could not find a server function named `{server_function}`"),
-         call. = FALSE)
-  }
-
-  # Save the module's UI and server
-  module_config$ui_function <- ui_function
-  module_config$server_function <- server_function
-
-  # Save the module's result and map code and Rmd variables if they exist
-  result_function <- glue("{id}_module_result")
-  if (exists(result_function, envir = temp_env) && is.function(get(result_function, envir = temp_env))) {
-    module_config$result_function <- result_function
-  }
-  map_function <- glue("{id}_module_map")
-  if (exists(map_function, envir = temp_env) && is.function(get(map_function, envir = temp_env))) {
-    module_config$map_function <- map_function
-  }
-  rmd_function <- glue("{id}_module_rmd")
-  if (exists(rmd_function, envir = temp_env) && is.function(get(rmd_function, envir = temp_env))) {
-    module_config$rmd_function <- rmd_function
-  }
 
   # Save the module information
   COMPONENT_MODULES[[module_config$component]][[id]] <- module_config
