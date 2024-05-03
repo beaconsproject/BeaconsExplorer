@@ -1,26 +1,23 @@
-#logHeader {
-	position:relative;
-	min-height:90px;
-	background: inherit;
-	z-index:10;
+.container-fluid {
+  padding-bottom: 10px;
 }
-#logContent {
-  position:absolute;
-  z-index: 5;
+
+/*
+.navbar-header {
+  width: 25% ;
+  display: flex;
+  align-items: center;
 }
-#wallaceLog {
-  height:100px;
-  width:450px;
-  padding:5px;
-  overflow:auto;
-  border:1px solid grey;
+.navbar-logo {
+  margin-top:-10px;
+  max-width: 100%; 
+  max-height: 100%; 
+  margin-right: 10px; 
+  padding-right:10px;
+  padding-bottom:10px",
 }
-hr {
-    border: none;
-    height: 5px;
-    color: #333; /* old IE */
-    background-color: #333; /* Modern Browsers */
-}
+
+
 .shiny-progress .bar {
   background-color:#FF0000;
   opacity:0.8;
@@ -28,12 +25,7 @@ hr {
 .shiny-progress .progress {
   height:7px;
 }
-.componentName {
-  color:#dd4814;
-  display:inline-block;
-  font-size:16pt;
-  font-weight:bold;
-}
+
 .compHelpButton {
   display:inline-block;
   margin:0px;
@@ -119,3 +111,4 @@ hr {
   color:#699FA1;
   margin:0px;
 }
+*/

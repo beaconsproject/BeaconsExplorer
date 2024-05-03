@@ -6,9 +6,8 @@ tagList(
     header = tagList(
       tags$head(tags$link(href = "css/styles.css", rel = "stylesheet"))
     ),
-    title = img(src = "beacons.png", height = '50', width = '43.21',
-                style = "margin-top: -15px"),
-    windowTitle = "BEACONs Conservation Explorer",
+    title = HTML('<div style="margin-top: -10px;"><a href="https://beaconsproject.ualberta.ca/" target="_blank"><img src="beacons.png" height="50"></a></div>'),
+    windowTitle = "BEACONs Explorer",
     tabPanel("Intro", value = 'intro'),
     tabPanel("Data package", value = 'geo'),
     tabPanel("Footprint map", value = 'envs'),
