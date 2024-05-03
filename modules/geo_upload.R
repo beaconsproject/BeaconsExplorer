@@ -9,15 +9,16 @@ gpkgUI <- function(id) {
 
 gpkg_upload <- function(input, output, session) {
   sa_data <- reactiveVal(NULL) # Initialize reactiveVal
-  
+ 
   observeEvent(input$file, {
     req(input$file)
-    layers <- st_layers(input$file$datapath)$name
+    layers <- vector_layers(input$file$datapath)
     updateSelectInput(session, "layer", choices = layers)
   })
   observeEvent(input$layer, {
     req(input$layer)
-    sa_data(st_read(input$file$datapath, layer = input$layer, quiet = TRUE ))
+    browser()
+    sa_data(vect(input$file$datapath, layer = input$layer))
   })
   return(sa_data)
 }  

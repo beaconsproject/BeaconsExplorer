@@ -20,14 +20,13 @@ server <- function(input, output, session) {
     map %>% addProviderTiles(input$bmap)
   })
   
-  # Serve GEO UI according to input format (gpkg, shp)
+  # Provide GEO UI according to input format (gpkg, shp)
   observeEvent(input$geoSel, {
      if (up_module() == "gpkg") {
        output$up_module <- renderUI({
          gpkgUI("upload_module")
         })
        sa_sf(callModule(gpkg_upload,"upload_module"))
-      
     }else if (up_module() == "shp") {
       output$up_module <- renderUI({
         shpUI("upload_module")
@@ -40,8 +39,8 @@ server <- function(input, output, session) {
   observeEvent(input$conf_sa,{ # 
     #browser()
     sa_sf <- sa_sf()() 
-    sa_sf <- sa_sf %>% st_transform(4326)
-    map_bounds1 <- sa_sf %>% st_bbox() %>% as.character()
+    sa_sf <- sa_sf %>% project("EPSG:4326")
+    map_bounds1 <- sa_sf %>% ext() %>% as.character()
     map %>% 
       clearGroup("Study area") %>%
       fitBounds(map_bounds1[1], map_bounds1[2], map_bounds1[3], map_bounds1[4]) %>%

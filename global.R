@@ -2,7 +2,9 @@
 library(glue)
 library(leaflet)
 library(shiny)
-library(sf)
+#library(sf)
+library(gpkg)
+library(terra)
 
 MB <- 1024^2
 

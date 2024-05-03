@@ -18,7 +18,7 @@ shp_upload <- function(input, output, session) {
       outfiles <- file.path(dir, infile$name) # create new path name
       name <- strsplit(infile$name[1], "\\.")[[1]][1] # strip name 
       purrr::walk2(infile$datapath, outfiles, ~file.rename(.x, .y)) # rename files
-      sa_data(st_read(file.path(dir, paste0(name, ".shp")))) # read-in shapefile  
+      sa_data(vect(file.path(dir, paste0(name, ".shp")))) # read-in shapefile  
     }
   })
   return(sa_data)  
