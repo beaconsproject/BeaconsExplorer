@@ -8,19 +8,19 @@ server <- function(input, output, session) {
   up_module <- reactive({input$geoSel})
   
   # Initialize map
-  output$map <- renderLeaflet({
+  output$myMap <- renderLeaflet({
     leaflet() %>% 
       setView(lng = -130, lat = 64, zoom = 5)%>%
       addProviderTiles("Esri.WorldImagery", group="Esri.WorldImagery") %>%
       addProviderTiles("Esri.WorldTopoMap", group="Esri.WorldTopoMap") %>%
       leafem::addMouseCoordinates()
   })
-  
   # create map proxy to make further changes to existing map
-  map <- leafletProxy("map")
-  # change provider tile option
+  myMap <- leafletProxy("myMap")
+
+    # change provider tile option
   observe({
-    map %>% addProviderTiles(input$bmap)
+    myMap %>% addProviderTiles(input$bmap)
   })
   
   # Provide GEO UI according to input format (gpkg, shp)
@@ -43,7 +43,7 @@ server <- function(input, output, session) {
     sa_sf <- sa_sf()() 
     sa_sf <- sa_sf %>% project("EPSG:4326")
     map_bounds1 <- sa_sf %>% ext() %>% as.character()
-    map %>% 
+    myMap %>% 
       clearGroup("Study area") %>%
       fitBounds(map_bounds1[1], map_bounds1[2], map_bounds1[3], map_bounds1[4]) %>%
       addPolygons(data=sa_sf, weight=2, group="Study area")

@@ -52,7 +52,7 @@ tagList(
                  id = 'main',
                  tabPanel(
                    'Map',
-                   leaflet::leafletOutput("map", height = 700),
+                   leaflet::leafletOutput("myMap", height = 700),
                    absolutePanel(
                      top = 50, right = 20, width = 150, draggable = TRUE,
                      selectInput("bmap", "",
