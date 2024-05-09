@@ -9,7 +9,7 @@ tagList(
     title = HTML('<div style="margin-top: -10px;"><a href="https://beaconsproject.ualberta.ca/" target="_blank"><img src="beacons.png" height="50"></a></div>'),
     windowTitle = "BEACONs Explorer",
     tabPanel("Intro", value = 'intro'),
-    tabPanel("Data package", value = 'geo'),
+    tabPanel("Data package", value = 'data'),
     tabPanel("Footprint map", value = 'envs'),
     navbarMenu("Support", icon = icon("life-ring"),
                HTML('<a href="https://beaconsproject.ualberta.ca/" target="_blank">BEACONs Homepage</a>'),
@@ -19,6 +19,7 @@ tagList(
     tabPanel(NULL, icon = icon("power-off"), value = "_stopapp")
   ),
   tags$div(
+    useShinyjs(),
     class = "container-fluid",
     fluidRow(
       column(4,
@@ -29,16 +30,24 @@ tagList(
           ),
           # OBTAIN OCCS ####
           conditionalPanel(
-             condition="input.tabs == 'geo'",
-             div("Create Data Package", class = "componentName"),
+             condition="input.tabs == 'data'",
+             div("Create Data Package", class = "moduleName"),
+             help_comp_ui("dataHelp"),
              radioButtons(inputId ="geoSel", 
                           label = "Choose data format:",
                           choices = c("Geopackage" = 'gpkg', "Shapefile" = 'shp'),
                           selected = character(0),
                           inline = TRUE),
              uiOutput("upload_module"),
+             # Disable actionButton on startup. Enable it once study area is selected 
              actionButton("conf_sa", "Visualize study area", disabled= TRUE),
-             uiOutput("editsa_module")
+             uiOutput("editsa_module"),
+             br(),
+             # Hide actionButtons on startup and make them appear using shinyjs::toggle inside observeEvent 
+             actionButton("enable_edit", "Enable boundary editing", icon = icon(name = "pen-to-square", lib = "font-awesome"), class = "btn-warning", style="display:none; width:250px"),
+             br(),
+             br(),
+             actionButton("confirm_edit", "Confirm study area boundary", icon = icon(name = "rotate", lib = "font-awesome"), class = "btn-success", style="display:none; width:250px")
 
           )
         )
@@ -61,6 +70,10 @@ tagList(
                                  selected = "Esri.WorldTopoMap"
                      )
                    )
+                 ),
+                 tabPanel(
+                   'Module Guidance', icon = icon("circle-info"),
+                   uiOutput('gtext_module')
                  )
                )
              )

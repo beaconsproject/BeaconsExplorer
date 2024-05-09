@@ -1,7 +1,17 @@
 .container-fluid {
   padding-bottom: 10px;
 }
-
+.modHelpButton {
+  display:inline-block;
+  margin:0px;
+  font-size:14pt;
+}
+.moduleName {
+  color:#3399FF;
+  display:inline-block;
+  font-size:16pt;
+  font-weight:bold;
+}
 /*
 .navbar-header {
   width: 25% ;
@@ -24,12 +34,6 @@
 }
 .shiny-progress .progress {
   height:7px;
-}
-
-.compHelpButton {
-  display:inline-block;
-  margin:0px;
-  font-size:14pt;
 }
 .rpkg {
   font-size:10pt;

@@ -7,6 +7,29 @@ server <- function(input, output, session) {
   sa_sf <- reactiveVal(NULL) 
   up_module <- reactive({input$geoSel})
   
+  # tab and module-level reactives
+  module <- reactive({
+    input$tabs
+  })
+  ######################## #
+  ### GUIDANCE TEXT ####
+  ######################## #
+  
+  # UI for component guidance text
+  output$gtext_module <- renderUI({
+    file <- file.path('Rmd', glue("gtext_{module()}.Rmd"))
+    if (!file.exists(file)) return()
+    includeMarkdown(file)
+  })
+  
+  # Help Component
+  help_modules <- c("data", "envs")
+  lapply(help_modules, function(module) {
+    btn_id <- paste0(module, "Help")
+    observeEvent(input[[btn_id]], updateTabsetPanel(session, "main", "Module Guidance"))
+  })
+  
+  
   # Initialize map
   output$myMap <- renderLeaflet({
     leaflet() %>% 
@@ -47,10 +70,14 @@ server <- function(input, output, session) {
       clearGroup("Study area") %>%
       fitBounds(map_bounds1[1], map_bounds1[2], map_bounds1[3], map_bounds1[4]) %>%
       addPolygons(data=sa_sf, weight=2, group="Study area")
-    output$editsa_module <- renderUI({
-      editUI("editsa_module")
-    })
-    callModule(edit_sa, "editsa_module", sa_sf)
+    #output$editsa_module <- renderUI({
+    #  editsaUI("editsa_module")
+    #})
+    shinyjs::toggle("enable_edit")
+    shinyjs::toggle("confirm_edit")
+    observeEvent(input$enable_edit, {
+      edit_sa(session)
   })
   
+  })
 }
