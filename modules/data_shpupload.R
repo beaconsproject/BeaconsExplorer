@@ -7,7 +7,7 @@ shpUI <- function(id) {
   )
 }
 
-shp_upload <- function(input, output, session) {
+shp_upload <- function(input, output, session, parent) {
   sa_data <- reactiveVal(NULL) # Initialize reactiveVal
   
   observeEvent(input$shp_input, {
@@ -20,6 +20,7 @@ shp_upload <- function(input, output, session) {
       purrr::walk2(infile$datapath, outfiles, ~file.rename(.x, .y)) # rename files
       sa_data(vect(file.path(dir, paste0(name, ".shp")))) # read-in shapefile  
     }
+    updateActionButton(parent, 'conf_sa', disabled = FALSE)
   })
   return(sa_data)  
 }

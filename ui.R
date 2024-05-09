@@ -36,8 +36,9 @@ tagList(
                           choices = c("Geopackage" = 'gpkg', "Shapefile" = 'shp'),
                           selected = character(0),
                           inline = TRUE),
-             uiOutput("up_module"),
-             actionButton("conf_sa", "Confirm")
+             uiOutput("upload_module"),
+             actionButton("conf_sa", "Visualize study area", disabled= TRUE),
+             uiOutput("editsa_module")
 
           )
         )

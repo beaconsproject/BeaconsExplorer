@@ -7,17 +7,17 @@ gpkgUI <- function(id) {
   )
 }
 
-gpkg_upload <- function(input, output, session) {
+gpkg_upload <- function(input, output, session, parent) {
   sa_data <- reactiveVal(NULL) # Initialize reactiveVal
  
   observeEvent(input$file, {
     req(input$file)
     layers <- vector_layers(input$file$datapath)
     updateSelectInput(session, "layer", choices = layers)
+    updateActionButton(parent, 'conf_sa', disabled = FALSE)
   })
   observeEvent(input$layer, {
     req(input$layer)
-    browser()
     sa_data(vect(input$file$datapath, layer = input$layer))
   })
   return(sa_data)
