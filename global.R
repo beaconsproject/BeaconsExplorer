@@ -6,6 +6,17 @@ library(shiny)
 library(gpkg)
 library(terra)
 
+#Load demo dataset
+bp <- 'www/data/demo_datasets.gpkg'
+spp <- 'www/data/species.gpkg'
+prj <- 'www/data/projected.gpkg'
+placemarks <- 'www/data/placemarks_4326.gpkg'
+catch4326 <- 'www/data/catchments1M_4326.gpkg'
+catch3578 <- 'www/data/catchments1M_3578.gpkg'
+limits <- vect(bp, 'fda') %>% union() %>% project("EPSG:4326")
+
+
+
 MB <- 1024^2
 
 UPLOAD_SIZE_MB <- 5000
@@ -22,14 +33,15 @@ for (file in base_module_files) source(file, local = TRUE)
 
 # The components that have modules. These names must match the values of the
 # tabs of the components in the UI.
-COMPONENTS <- c("geo", "envs")
+COMPONENTS <- c("data", "envs")
 
 # Information about modules that various parts of the app need access to
 COMPONENT_MODULES <- list()
 
 # Load all Wallace base modules
 all_module_configs <- c(
-  "modules/geo_upload.yml"#,
+  "modules/data_geoupload.yml",
+  "modules/data_shpupload.yml"
 )
 
 for (module_config_file in all_module_configs) {
