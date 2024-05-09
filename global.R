@@ -5,6 +5,7 @@ library(shiny)
 #library(sf)
 library(gpkg)
 library(terra)
+library(shinyjs) # toggle
 
 #Load demo dataset
 bp <- 'www/data/demo_datasets.gpkg'
