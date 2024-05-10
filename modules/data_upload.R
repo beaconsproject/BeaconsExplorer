@@ -1,4 +1,34 @@
-#----SHP-------------------------------
+######################## #
+### GPKG            ####
+######################## #
+# gpkg UI 
+gpkgUI <- function(id) {
+  ns <- NS(id)
+  fluidPage(
+   fileInput(ns("file"), "Choose a GeoPackage file"),
+    selectInput(ns("layer"), "Select a layer", choices = NULL),
+  )
+}
+# GPKG server module
+gpkg_upload <- function(input, output, session, parent) {
+  sa_data <- reactiveVal(NULL) # Initialize reactiveVal
+ 
+  observeEvent(input$file, {
+    req(input$file)
+    layers <- vector_layers(input$file$datapath)
+    updateSelectInput(session, "layer", choices = layers)
+    updateActionButton(parent, 'conf_sa', disabled = FALSE)
+  })
+  observeEvent(input$layer, {
+    req(input$layer)
+    sa_data(vect(input$file$datapath, layer = input$layer))
+  })
+  return(sa_data)
+}  
+
+######################## #
+### SHP             ####
+######################## #
 #shp UI
 shpUI <- function(id) {
   ns <- NS(id)
@@ -6,7 +36,7 @@ shpUI <- function(id) {
     fileInput(ns("shp_input"), "Upload a Shapefile", multiple = TRUE, accept=c('.shp','.dbf','.sbn','.sbx','.shx','.prj','.cpg')),
   )
 }
-
+# shp server
 shp_upload <- function(input, output, session, parent) {
   sa_data <- reactiveVal(NULL) # Initialize reactiveVal
   

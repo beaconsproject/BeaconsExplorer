@@ -41,8 +41,7 @@ COMPONENT_MODULES <- list()
 
 # Load all Wallace base modules
 all_module_configs <- c(
-  "modules/data_geoupload.yml",
-  "modules/data_shpupload.yml"
+  "modules/data_upload.yml"
 )
 
 for (module_config_file in all_module_configs) {
