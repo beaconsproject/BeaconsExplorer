@@ -40,14 +40,20 @@ tagList(
                           inline = TRUE),
              uiOutput("upload_module"),
              # Disable actionButton on startup. Enable it once study area is selected 
-             actionButton("conf_sa", "Visualize study area", disabled= TRUE),
-             uiOutput("editsa_module"),
-             br(),
              # Hide actionButtons on startup and make them appear using shinyjs::toggle inside observeEvent 
-             actionButton("enable_edit", "Enable boundary editing", icon = icon(name = "pen-to-square", lib = "font-awesome"), class = "btn-warning", style="display:none; width:250px"),
+             actionButton("mod_sa_button", "Enable boundary editing", icon = icon(name = "pen-to-square", lib = "font-awesome"), class = "btn-success", style="display:none; width:250px"),
+             br(),
+             actionButton("view_sa_button", "Preview modified study area", icon = icon(name = "rotate", lib = "font-awesome"), class = "btn-success", style="display:none; width:250px"),
              br(),
              br(),
-             actionButton("confirm_edit", "Confirm study area boundary", icon = icon(name = "rotate", lib = "font-awesome"), class = "btn-success", style="display:none; width:250px")
+             actionButton("conf_sa_button", "Confirm study area", icon = icon(name = "check", lib = "font-awesome"), class = "btn-warning", style="display:none; width:200px"),
+             uiOutput("editsa_module")#,
+             #br(),
+             # Hide actionButtons on startup and make them appear using shinyjs::toggle inside observeEvent 
+             #actionButton("enable_edit", "Enable boundary editing", icon = icon(name = "pen-to-square", lib = "font-awesome"), class = "btn-warning", style="display:none; width:250px"),
+             #br(),
+             #br(),
+             #actionButton("confirm_edit", "Confirm study area boundary", icon = icon(name = "rotate", lib = "font-awesome"), class = "btn-success", style="display:none; width:250px")
 
           )
         )
@@ -63,11 +69,11 @@ tagList(
                    'Map',
                    leaflet::leafletOutput("myMap", height = 700),
                    absolutePanel(
-                     top = 50, right = 20, width = 150, draggable = TRUE,
+                     top = 100, left = 20, width = 150, draggable = TRUE,
                      selectInput("bmap", "",
-                                 choices = c('ESRI Imagery' = "Esri.WorldImagery",
-                                             'ESRI Nat Geo' = 'Esri.NatGeoWorldMap'),
-                                 selected = "Esri.WorldTopoMap"
+                                 choices = c("ESRI Imagery" = 'Esri.WorldImagery',
+                                             "ESRI Nat Geo" = 'Esri.NatGeoWorldMap'),
+                                 selected = 'Esri.NatGeoWorldMap'
                      )
                    )
                  ),

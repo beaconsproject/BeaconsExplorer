@@ -4,7 +4,10 @@ help_comp_ui <- function(name) {
              class = "modHelpButton")
 }
 
+
+
 ### Those are stand by
+###------------------------------------------------
 # Join a string vector into a single string separated by commas
 join <- function(v) paste(v, collapse = ", ")
 
@@ -36,5 +39,3 @@ insert_modules_results <- function(component) {
     )
   })
 }
-
-
