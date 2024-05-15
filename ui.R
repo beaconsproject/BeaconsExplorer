@@ -10,7 +10,7 @@ tagList(
     windowTitle = "BEACONs Explorer",
     tabPanel("Intro", value = 'intro'),
     tabPanel("Data package", value = 'data'),
-    tabPanel("Footprint map", value = 'envs'),
+    tabPanel("Footprint map", value = 'footprint'),
     navbarMenu("Support", icon = icon("life-ring"),
                HTML('<a href="https://beaconsproject.ualberta.ca/" target="_blank">BEACONs Homepage</a>'),
                HTML('<a href="https://github.com/beaconsproject/geopackage_creator" target="_blank">Github Page</a>'),
@@ -31,16 +31,29 @@ tagList(
           # OBTAIN OCCS ####
           conditionalPanel(
              condition="input.tabs == 'data'",
-             div("Create Data Package", class = "moduleName"),
-             help_comp_ui("dataHelp"),
-             radioButtons(inputId ="geoSel", 
-                          label = "Choose data format:",
-                          choices = c("Geopackage" = 'gpkg', "Shapefile" = 'shp'),
-                          selected = character(0),
-                          inline = TRUE),
-             uiOutput("upload_module"),
-             uiOutput("editSA_module"),
-             uiOutput("selLayer_module")
+             tabsetPanel(
+             tabPanel("Component",
+                      div("Create Data Package", class = "moduleName"),
+                      help_comp_ui("dataHelp"),
+                      radioButtons(inputId ="geoSel", 
+                                   label = "Choose data format:",
+                                   choices = c("Geopackage" = 'gpkg', "Shapefile" = 'shp'),
+                                   selected = character(0),
+                                   inline = TRUE),
+                      uiOutput("upload_module"),
+                      uiOutput("editSA_module"),
+                      uiOutput("selLayer_module")
+                      ) 
+             )  
+          ),
+          conditionalPanel(
+            condition="input.tabs == 'footprint'",
+            tabsetPanel(
+              tabPanel("Component",
+                       div("Create Footprint Map", class = "moduleName"),
+              ), 
+              tabPanel("Statistics table", "This is a test")
+            )  
           )
         )
       ),
