@@ -39,22 +39,8 @@ tagList(
                           selected = character(0),
                           inline = TRUE),
              uiOutput("upload_module"),
-             # Disable actionButton on startup. Enable it once study area is selected 
-             # Hide actionButtons on startup and make them appear using shinyjs::toggle inside observeEvent 
-             actionButton("mod_sa_button", "Enable boundary editing", icon = icon(name = "pen-to-square", lib = "font-awesome"), class = "btn-success", style="display:none; width:250px"),
-             br(),
-             actionButton("view_sa_button", "Preview modified study area", icon = icon(name = "rotate", lib = "font-awesome"), class = "btn-success", style="display:none; width:250px"),
-             br(),
-             br(),
-             actionButton("conf_sa_button", "Confirm study area", icon = icon(name = "check", lib = "font-awesome"), class = "btn-warning", style="display:none; width:200px"),
-             uiOutput("editsa_module")#,
-             #br(),
-             # Hide actionButtons on startup and make them appear using shinyjs::toggle inside observeEvent 
-             #actionButton("enable_edit", "Enable boundary editing", icon = icon(name = "pen-to-square", lib = "font-awesome"), class = "btn-warning", style="display:none; width:250px"),
-             #br(),
-             #br(),
-             #actionButton("confirm_edit", "Confirm study area boundary", icon = icon(name = "rotate", lib = "font-awesome"), class = "btn-success", style="display:none; width:250px")
-
+             uiOutput("editSA_module"),
+             uiOutput("selLayer_module")
           )
         )
       ),
@@ -69,7 +55,7 @@ tagList(
                    'Map',
                    leaflet::leafletOutput("myMap", height = 700),
                    absolutePanel(
-                     top = 100, left = 20, width = 150, draggable = TRUE,
+                     top = 32, left = 60, width = 150, draggable = TRUE,
                      selectInput("bmap", "",
                                  choices = c("ESRI Imagery" = 'Esri.WorldImagery',
                                              "ESRI Nat Geo" = 'Esri.NatGeoWorldMap'),
