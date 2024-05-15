@@ -4,8 +4,12 @@ library(leaflet)
 library(shiny)
 #library(sf)
 library(gpkg)
+library(purrr)
+library(markdown)
 library(terra)
 library(shinyjs) # toggle
+library(tidyverse)
+library(dplyr)
 
 #Load demo dataset
 bp <- 'www/data/demo_datasets.gpkg'
@@ -14,7 +18,7 @@ prj <- 'www/data/projected.gpkg'
 placemarks <- 'www/data/placemarks_4326.gpkg'
 catch4326 <- 'www/data/catchments1M_4326.gpkg'
 catch3578 <- 'www/data/catchments1M_3578.gpkg'
-limits <- vect(bp, 'fda') %>% union() %>% project("EPSG:4326")
+limits <- vect(bp, 'fda') %>% terra::union() %>% project("EPSG:4326")
 
 
 
