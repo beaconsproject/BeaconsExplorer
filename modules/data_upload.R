@@ -10,14 +10,13 @@ gpkgUI <- function(id) {
   )
 }
 # GPKG server module
-gpkg_upload <- function(input, output, session, parent) {
+gpkg_upload <- function(input, output, session) {
   sa_data <- reactiveVal(NULL) # Initialize reactiveVal
  
   observeEvent(input$file, {
     req(input$file)
     layers <- vector_layers(input$file$datapath)
     updateSelectInput(session, "layer", choices = layers)
-    updateActionButton(parent, 'conf_sa', disabled = FALSE)
   })
   observeEvent(input$layer, {
     req(input$layer)
@@ -37,7 +36,7 @@ shpUI <- function(id) {
   )
 }
 # shp server
-shp_upload <- function(input, output, session, parent) {
+shp_upload <- function(input, output, session) {
   sa_data <- reactiveVal(NULL) # Initialize reactiveVal
   
   observeEvent(input$shp_input, {
@@ -50,7 +49,6 @@ shp_upload <- function(input, output, session, parent) {
       purrr::walk2(infile$datapath, outfiles, ~file.rename(.x, .y)) # rename files
       sa_data(vect(file.path(dir, paste0(name, ".shp")))) # read-in shapefile  
     }
-    updateActionButton(parent, 'conf_sa', disabled = FALSE)
   })
   return(sa_data)  
 }

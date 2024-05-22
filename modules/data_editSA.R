@@ -20,7 +20,6 @@ sa.catch <- function(session, sa_sf, catch) {
 }  
 
 edit.SA <- function(sa_spat, catch_4326, myMap) {
-  #browser()
   region <- project(sa_spat, "EPSG:4326")
   myMap %>% 
     clearGroup("Study area") %>%
@@ -43,23 +42,26 @@ update.SA <- function(catch_4326, selected_catchments, myMap) {
     addPolygons(data = region, fill = FALSE, color = "blue", weight = 4, group = "Study area", options = leafletOptions(pane = "ground")) #%>%
 }
 
-conf.SA <- function(SA, catch_4326, selected_catchments, myMap) {
-  #browser()
+conf.SA <- function(input, output, session, SA, catch_4326, selected_catchments, myMap) {
+#conf.SA <- function(SA, catch_4326, selected_catchments, myMap) {
+  region <- reactiveVal(NULL)
   if(is.null(selected_catchments$catchnum)){
-    SA <- project(SA, "EPSG:4326")
+    #region <- project(SA, "EPSG:4326")
+    region(project(SA, "EPSG:4326"))
   }else{
     data_selected <- catch_4326[catch_4326$CATCHNUM %in% selected_catchments$catchnum,]
-    data_select <- aggregate(data_selected)
-    region <- data_select %>%
+    data_select <- terra::aggregate(data_selected)  %>%
       buffer(width = 20) %>% 
       buffer(width = -20) 
+    region(data_select)
   }
   myMap %>%
     clearGroup("Study area") %>%
     clearGroup("Catchments") %>%
     clearGroup("clear_button") %>%
-    addPolygons(data = region, fill = FALSE, color = "blue", weight = 4, group = "Study area", options = leafletOptions(pane = "ground")) %>%
+    addPolygons(data = region(), fill = FALSE, color = "blue", weight = 4, group = "Study area", options = leafletOptions(pane = "ground")) %>%
     addLayersControl(overlayGroups = c("Study area","Ecoregions", "FDAs","Protected areas", "Caribou ranges"),
                      options = layersControlOptions(collapsed = FALSE)) %>%
     hideGroup(c("Ecoregions","FDAs","Protected areas", "Caribou ranges"))
+  return(region())
 }

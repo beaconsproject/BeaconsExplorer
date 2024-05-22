@@ -1,12 +1,12 @@
 # Define server logic
 server <- function(input, output, session) {
-  # Initialize reactive data
-  #init.values <- callModule(initializeValues, "init.module")
-
   # Initialize reactive value
   sa_spat <- reactiveVal(NULL) 
+  sa_spat_select <-  reactiveVal(NULL)
   up_module <- reactive({input$geoSel})
   selected_catchments <- reactiveValues(catchnum = c()) #track selected catchment interactively
+  layers <- callModule(reactiveLayersModule, id = "reactiveLayersModule", region = NULL)
+  render_layers_panel <- reactiveVal(FALSE)
   
   pop = ~paste("CATCHNUM:", CATCHNUM, "<br>Area (km²):", round(Area_total/1000000,1), "<br>Intactness (%):", intact*100 )
   
@@ -54,6 +54,7 @@ server <- function(input, output, session) {
   
   # Render selected catchments. None at startup
   observe({
+    catch_4326 <- layers$catch_4326
     data_select <- catch_4326[catch_4326$CATCHNUM %in% selected_catchments$catchnum,]
     myMap %>%
       clearGroup("Selected") %>%
@@ -68,12 +69,12 @@ server <- function(input, output, session) {
        output$upload_module <- renderUI({
          gpkgUI("upload_module")
         })
-       sa_spat(callModule(gpkg_upload,"upload_module", parent = session))
+       sa_spat(callModule(gpkg_upload,"upload_module"))
     }else if (up_module() == "shp") {
       output$upload_module <- renderUI({
         shpUI("upload_module")
       })
-      sa_spat(callModule(shp_upload, "upload_module", parent = session))
+      sa_spat(callModule(shp_upload, "upload_module"))
     }
   })
 
@@ -83,27 +84,40 @@ server <- function(input, output, session) {
     req(!is.null(sa_spat()()))
     sa_spat3578 <- sa_spat()() 
     sa_spat <- sa_spat3578 %>% project("EPSG:4326")
+    pas_4326 <- layers$pa_2021 %>% project("EPSG:4326")
+    caribourange_4326 <- layers$spp1 %>% project("EPSG:4326")
     map_bounds1 <- sa_spat %>% ext() #%>% as.character()
     myMap <- leafletProxy("myMap", session)
     myMap %>% 
       clearGroup("Study area") %>%
       fitBounds(as.character(map_bounds1[1]), as.character(map_bounds1[3]), as.character(map_bounds1[2]), as.character(map_bounds1[4])) %>%
-      addPolygons(data=sa_spat, weight=2, group="Study area", options = leafletOptions(pane = "ground"))
-    shinyjs::show("mod_sa_button")
-    shinyjs::show("view_sa_button")
-    shinyjs::show("conf_sa_button")
+      addPolygons(data=sa_spat, weight=2, group="Study area", options = leafletOptions(pane = "ground")) %>%
+      addPolygons(data=ecoregions(), color='#996633', fill=F, weight=1, group="Ecoregions", options = leafletOptions(pane = "ground")) %>%
+      addPolygons(data=fdas(), color='#333333', fill=F, weight=1, group="FDAs", options = leafletOptions(pane = "ground")) %>%
+      addPolygons(data=caribourange_4326, fillColor = "Brown", fillOpacity=0.7, weight=0.1, group="Caribou ranges", options = leafletOptions(pane = "ground")) %>%
+      addPolygons(data=pas_4326, fillColor = "green",  fillOpacity=0.5, weight=0.1, group="Protected areas", options = leafletOptions(pane = "ground")) %>%
+      addLayersControl(position = "topright",
+                         baseGroups=c("Esri.WorldTopoMap", "Esri.WorldImagery"),
+                         overlayGroups = c("Study area","Ecoregions", "FDAs","Protected areas", "Caribou ranges"),
+                         options = layersControlOptions(collapsed = FALSE)) %>%
+        hideGroup(c("Ecoregions","FDAs","Protected areas", "Caribou ranges"))
+    
+    output$editSA_module <- renderUI({
+      editSAUI("editSA_module")
+    })
+    sa_spat_select(sa_spat3578)
   })
   
   # Update map when mod_sa_button is pressed
-  observeEvent(input$mod_sa_button, {
+  observeEvent(input[["editSA_module-mod_sa_button"]], {
     # If modify sa is pressed, select all catchnum based on centroid
     sa_catch<-sa.catch(session, sa_spat()(), catch_3578())
-    if(input$mod_sa_button[1] ==1){
-      selected_catchments$catchnum <- sa_catch$CATCHNUM
-    }else{
-      selected_catchments$catchnum <- selected_catchments$catchnum
+    selected_catchments$catchnum <- sa_catch$CATCHNUM
+    edit.SA(sa_spat()(), catch_4326, myMap)
+    if(input[["editSA_module-mod_sa_button"]][1] ==1){
+      myMap %>%
+        addControl(actionButton(inputId = "clear_button", label = "Clear selection"), position="topleft", className = "class_clear_button")
     }
-    edit.SA(sa_spat()(), sa_catch, catch_4326, selected_catchments, myMap)
   })
   
   # Track a list of which catchnums have been selected
@@ -117,13 +131,57 @@ server <- function(input, output, session) {
   })
   
   # Update map when view_sa_button is pressed
-  observeEvent(input$view_sa_button, {
-    update.SA(catch_3578, catch_4326, selected_catchments, myMap)
+  #observeEvent(input$view_sa_button, {
+  observeEvent(input[["editSA_module-view_sa_button"]], {
+    update.SA(catch_4326, selected_catchments, myMap)
   })
   
   # Confirm map when conf_sa_button is pressed
-  observeEvent(input$conf_sa_button, {
-    conf.SA(region, myMap)
+  #observeEvent(input$conf_sa_button, {
+  
+  observeEvent(input[["editSA_module-conf_sa_button"]], {
+    #conf.SA(sa_spat()(), catch_4326, selected_catchments, myMap)
+    #region <- callModule(conf.SA, id = "confSA", sa_spat()(), catch_4326, selected_catchments, myMap)
+    callModule(conf.SA, id = "confSA", sa_spat()(), catch_4326, selected_catchments, myMap)
+    selected_catchments$catchnum <- NULL
+    showModal(modalDialog(
+      title = "Study area confirmed. Please select spatial layers",
+      easyClose = TRUE,
+      footer = modalButton("OK")
+    ))
+    removeUI("#editSA_module", immediate=TRUE)
+    render_layers_panel(TRUE)
+  })
+  
+  # Conditionally render selLayerUI only if render_layers_panel is TRUE
+  observeEvent(render_layers_panel(), {
+    if (render_layers_panel()) {
+      output$selLayer_module <- renderUI({
+        selLayerUI("selLayer_module")
+      })
+      output$layers_panel <- renderUI({
+        absolutePanelModuleUI("layers_panel")
+        
+      })
+
+      layers <- callModule(reactiveLayersModule, id = "reactiveLayersModule", region = sa_spat_select())
+  
+    # Define prj1 outside of observeEvent
+    #prj1 <- reactiveVal(FALSE)
+    #observe({
+    #  prj1_val <- callModule(absolutePanelModule, id = "layers_panel")$prj1
+    #  if (!is.null(prj1_val)) {
+    #    prj1(TRUE)
+    #  }
+    #})
+    #ns_layers_panel <- NS("layers_panel")
+    #prj1_value <- callModule(absolutePanelModule, "layers_panel", ns_layers_panel)
+    # Call module with reactive values
+    #  callModule(sel.Layer, "selLayer_module", myMap, layers)    
+   # print(prj1)
+    #ns <- session$ns("layers_panel")
+    callModule(sel.Layer, "selLayer_module", myMap, layers)
+    }
   })
   
   # If clear selection button is pressed, remove all catchnums from list

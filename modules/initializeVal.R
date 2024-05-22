@@ -1,111 +1,70 @@
+# Define a module to manage the reactive values
+reactiveLayersModule <- function(input, output, session, region) {
+  layers <- reactiveValues(catch_3578 = reactiveVal(NULL),
+                 catch_4326 = reactiveVal(NULL),
+                 line = reactiveVal(NULL),
+                 poly = reactiveVal(NULL),
+                 fires = reactiveVal(NULL),
+                 ifl_2000 = reactiveVal(NULL),
+                 ifl_2020 = reactiveVal(NULL),
+                 pa_2021 = reactiveVal(NULL),
+                 prj1 = reactiveVal(NULL),
+                 prj2 = reactiveVal(NULL),
+                 spp1 = reactiveVal(NULL),
+                 spp2 = reactiveVal(NULL),
+                 spp3 = reactiveVal(NULL)
+  )
+  
+  observe({
+    layers$catch_3578 <- vect(catch3578, 'catchments')
+    layers$catch_4326 <- vect(catch4326, 'catchments')
+    layers$line <- vect(bp, 'sd_line')
+    layers$poly <- vect(bp, 'sd_poly')
+    layers$fires <- vect(bp, 'fires')
+    layers$ifl_2000 <- vect(bp, 'ifl_2000')
+    layers$ifl_2020 <- vect(bp, 'ifl_2020')
+    layers$pa_2021 <- vect(bp, 'protected_areas')
+    layers$prj1 <- vect(prj, 'Quartz Claims')
+    layers$prj2 <- vect(prj, 'Placer Claims')
+    layers$spp1 <- vect(spp, 'Caribou Herds')
+    layers$spp2 <- vect(spp, 'Thinhorn Sheep')
+    layers$spp3 <- vect(spp, 'Key Wetlands 2011')
+  })
+  
+  observe({
+    req(region)
+    # Clip spatial data based on the region
+    layers$line <- isolate(layers$line) %>%
+      terra::intersect(region)
+    layers$poly <- isolate(layers$poly) %>%
+      terra::intersect(region)
+    layers$fires <- isolate(layers$fires) %>%
+      terra::intersect(region)
+    layers$ifl_2000 <- isolate(layers$ifl_2000) %>%
+      terra::intersect(region)
+    layers$ifl_2020 <- isolate(layers$ifl_2020) %>%
+      terra::intersect(region)
+    layers$pa_2021 <- isolate(layers$pa_2021) %>%
+      terra::intersect(region)
+    layers$prj1 <- isolate(layers$prj1) %>%
+      terra::intersect(region)
+    layers$prj2 <- isolate(layers$prj2) %>%
+      terra::intersect(region)
+    layers$spp1 <- isolate(layers$spp1) %>%
+      terra::intersect(region)
+    layers$spp2 <- isolate(layers$spp2) %>%
+      terra::intersect(region)
+    layers$spp3 <- isolate(layers$spp3) %>%
+      terra::intersect(region)
+  })
+  return(layers)
+}
+
+
 # set a reactive value for selected catchments
 selected_catchments <- reactiveValues( # this is the list of currently selected catchments
   catchnum = c()
 )
-  
-# Section 1 in csr: 3578
-catch_3578 <-reactive({
-  vect(catch3578, 'catchments')
-})
-  
-line <- reactive({
-  vect(bp, 'sd_line') %>%
-     intersect(region()) #%>%
-    #st_cast('MULTILINESTRING')
-})
-  
-poly <- reactive({
-  vect(bp, 'sd_poly') %>%
-    #st_as_sf() %>%
-    #st_cast('MULTIPOLYGON') %>%
-    intersect(region()) #%>%
-    #st_cast('MULTIPOLYGON')
-})
-  
-fires <- reactive({
-  req(bnd())
-  vect(bp, 'fires') %>%
-    #st_as_sf() %>%
-    #st_cast('MULTIPOLYGON') %>%
-    tidyterra::filter(YEAR >= input$minmax[1] & YEAR <= input$minmax[2]) %>%
-    intersect(region()) #%>%
-    #st_cast('MULTIPOLYGON')
-})
-  
-ifl_2000 <- reactive({
-  vect(bp, 'ifl_2000') %>%
-    intersect(region())
-})
-  
-ifl_2020 <- reactive({
-  vect(bp, 'ifl_2020') %>%
-    intersect(region())
-})
-  
-pa_2021 <- reactive({
-  vect(bp, 'protected_areas')
-})
-  
-caribourange<- reactive({
-  vect(spp, 'Caribou Herds')
-})
-  
-prj1 <- eventReactive(input$goButton, {
-  if (input$prj1) {
-      #aoi <- bnd() %>% st_transform(3578) %>% st_union()
-    aoi <- region()
-    vect(prj, 'Quartz Claims') %>%
-      intersect(aoi) %>%
-      tidyterra::filter(TENURE_STATUS=='Active')
-  } else {
-    return(NULL)
-  }
-})
-  
-prj2 <- eventReactive(input$goButton, {
-  if (input$prj2) {
-    #aoi <- bnd() %>% st_transform(3578) %>% st_union()
-    aoi <- region()
-    vect(prj, 'Placer Claims') %>%
-      intersect(aoi) %>%
-      tidyterra::filter(TENURE_STATUS=='Active')
-  } else {
-    return(NULL)
-  }
-})
-  
-spp1 <- eventReactive(input$goButton, {
-  if (input$spp1) {
-    #aoi <- bnd() %>% st_transform(3578) %>% st_union()
-    aoi <- region()
-    vect(spp, 'Caribou Herds') %>%
-      intersect(x, aoi)
-  } else {
-    return(NULL)
-  }
-})
-  
-spp2 <- eventReactive(input$goButton, {
-  if (input$spp2) {
-    #aoi <- bnd() %>% st_transform(3578) %>% st_union()
-    aoi <- region()
-    vect(spp, 'Thinhorn Sheep') %>%
-      intersect(aoi)
-  } else {
-    return(NULL)
-  }
-})
-  
-spp3 <- eventReactive(input$goButton, {
-  if (input$spp3) {
-    #aoi <- bnd() %>% st_transform(3578) %>% st_union()
-    aoi <- region()
-    vect(spp, 'Key Wetlands 2011') %>%
-      intersect(aoi)
-  } else {
-    return(NULL)
-  }
-  })
   
 # section 2 in crs 4326
 ecoregions <- reactive({
@@ -116,4 +75,3 @@ fdas<- reactive({
   vect(placemarks, 'fdas')
 })
   
-catch_4326 <- vect(catch4326, 'catchments')

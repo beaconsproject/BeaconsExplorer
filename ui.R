@@ -9,8 +9,8 @@ tagList(
     title = HTML('<div style="margin-top: -10px;"><a href="https://beaconsproject.ualberta.ca/" target="_blank"><img src="beacons.png" height="50"></a></div>'),
     windowTitle = "BEACONs Explorer",
     tabPanel("Intro", value = 'intro'),
-    tabPanel("Data package", value = 'data'),
-    tabPanel("Footprint map", value = 'footprint'),
+    tabPanel("Data Initialization", value = 'data'),
+    tabPanel("Disturbance Analysis", value = 'footprint'),
     navbarMenu("Support", icon = icon("life-ring"),
                HTML('<a href="https://beaconsproject.ualberta.ca/" target="_blank">BEACONs Homepage</a>'),
                HTML('<a href="https://github.com/beaconsproject/geopackage_creator" target="_blank">Github Page</a>'),
@@ -74,7 +74,8 @@ tagList(
                                              "ESRI Nat Geo" = 'Esri.NatGeoWorldMap'),
                                  selected = 'Esri.NatGeoWorldMap'
                      )
-                   )
+                   ),
+                   #uiOutput("layers_panel")# add absolute panel on top of leaflet
                  ),
                  tabPanel(
                    'Module Guidance', icon = icon("circle-info"),
