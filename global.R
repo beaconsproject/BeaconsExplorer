@@ -10,8 +10,12 @@ library(terra)
 library(shinyjs) # toggle
 library(tidyverse)
 library(dplyr)
+library(shinyBS)
+#library(shinydashboard)
+#library(shinycssloaders)
+library(shinyMatrix)
 
-#Load demo dataset
+# data component related
 bp <- 'www/data/demo_datasets.gpkg'
 spp <- 'www/data/species.gpkg'
 prj <- 'www/data/projected.gpkg'
@@ -19,6 +23,9 @@ placemarks <- 'www/data/placemarks_4326.gpkg'
 catch4326 <- 'www/data/catchments1M_4326.gpkg'
 catch3578 <- 'www/data/catchments1M_3578.gpkg'
 limits <- vect(bp, 'fda') %>% terra::union() %>% project("EPSG:4326")
+## dist component related
+m1 <- as.matrix(read_csv('docs/cas.csv')[42:66,2:4]) #%>% filter(TYPE_DISTURBANCE %in% x1))
+m2 <- as.matrix(read_csv('docs/cas.csv')[1:41,2:4]) #%>% filter(TYPE_DISTURBANCE %in% x2))
 
 
 

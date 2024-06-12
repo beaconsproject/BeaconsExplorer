@@ -7,6 +7,7 @@ server <- function(input, output, session) {
   selected_catchments <- reactiveValues(catchnum = c()) #track selected catchment interactively
   layers <- callModule(reactiveLayersModule, id = "reactiveLayersModule", region = NULL)
   render_layers_panel <- reactiveVal(FALSE)
+  uploadedFeat <- reactiveVal(NULL)
   
   pop = ~paste("CATCHNUM:", CATCHNUM, "<br>Area (km²):", round(Area_total/1000000,1), "<br>Intactness (%):", intact*100 )
   
@@ -26,7 +27,7 @@ server <- function(input, output, session) {
   })
   
   # Help Component
-  help_modules <- c("data", "envs")
+  help_modules <- c("data", "dist")
   lapply(help_modules, function(module) {
     btn_id <- paste0(module, "Help")
     observeEvent(input[[btn_id]], updateTabsetPanel(session, "main", "Module Guidance"))
@@ -63,8 +64,14 @@ server <- function(input, output, session) {
                   layerId = data_select$CATCHNUM, group = "Selected") 
   })
   
+  output$radio_buttons_ui <- renderUI({
+    radioButtons("geoSel", "Choose File Type:", choices = c("shp", "gpkg"), inline = TRUE)
+  })
+  
   # Provide GEO UI according to input format (gpkg, shp)
-  observeEvent(input$geoSel, {
+  #observeEvent(input$geoSel, {
+  observe({
+    req(input$geoSel)
      if (up_module() == "gpkg") {
        output$upload_module <- renderUI({
          gpkgUI("upload_module")
@@ -77,6 +84,8 @@ server <- function(input, output, session) {
       sa_spat(callModule(shp_upload, "upload_module"))
     }
   })
+
+  
 
   #### Map-related observers ####
   observe({
@@ -111,9 +120,9 @@ server <- function(input, output, session) {
   # Update map when mod_sa_button is pressed
   observeEvent(input[["editSA_module-mod_sa_button"]], {
     # If modify sa is pressed, select all catchnum based on centroid
-    sa_catch<-sa.catch(session, sa_spat()(), catch_3578())
+    sa_catch<-sa.catch(session, sa_spat()(), layers$catch_3578)
     selected_catchments$catchnum <- sa_catch$CATCHNUM
-    edit.SA(sa_spat()(), catch_4326, myMap)
+    edit.SA(sa_spat()(), layers$catch_4326, myMap)
     if(input[["editSA_module-mod_sa_button"]][1] ==1){
       myMap %>%
         addControl(actionButton(inputId = "clear_button", label = "Clear selection"), position="topleft", className = "class_clear_button")
@@ -131,24 +140,21 @@ server <- function(input, output, session) {
   })
   
   # Update map when view_sa_button is pressed
-  #observeEvent(input$view_sa_button, {
   observeEvent(input[["editSA_module-view_sa_button"]], {
-    update.SA(catch_4326, selected_catchments, myMap)
+    update.SA(layers$catch_4326, selected_catchments, myMap)
   })
   
   # Confirm map when conf_sa_button is pressed
-  #observeEvent(input$conf_sa_button, {
-  
   observeEvent(input[["editSA_module-conf_sa_button"]], {
-    #conf.SA(sa_spat()(), catch_4326, selected_catchments, myMap)
-    #region <- callModule(conf.SA, id = "confSA", sa_spat()(), catch_4326, selected_catchments, myMap)
-    callModule(conf.SA, id = "confSA", sa_spat()(), catch_4326, selected_catchments, myMap)
+    callModule(conf.SA, id = "confSA", sa_spat()(), layers$catch_4326, selected_catchments, myMap)
     selected_catchments$catchnum <- NULL
     showModal(modalDialog(
       title = "Study area confirmed. Please select spatial layers",
       easyClose = TRUE,
       footer = modalButton("OK")
     ))
+    removeUI("#radio_buttons_ui", immediate=TRUE)
+    removeUI("#upload_module", immediate=TRUE)
     removeUI("#editSA_module", immediate=TRUE)
     render_layers_panel(TRUE)
   })
@@ -159,28 +165,33 @@ server <- function(input, output, session) {
       output$selLayer_module <- renderUI({
         selLayerUI("selLayer_module")
       })
-      output$layers_panel <- renderUI({
-        absolutePanelModuleUI("layers_panel")
-        
-      })
-
-      layers <- callModule(reactiveLayersModule, id = "reactiveLayersModule", region = sa_spat_select())
+    layers <- callModule(reactiveLayersModule, id = "reactiveLayersModule", region = sa_spat_select())
+    shinyjs::show("modalButtonContainer")
+    uploadedFeatures <- callModule(modalDialogServer, "modal")
+    callModule(selLayer, "selLayer_module", myMap, layers, uploadedFeatures)
+    uploadedFeat(uploadedFeatures)
+    output$switch_component <- renderUI({
+      switchTabButtonUI("switch_component", "disturbance analysis")
+    })
+    switchTabButtonServer("switch_component", session, "dist")
+    }
+  })
   
-    # Define prj1 outside of observeEvent
-    #prj1 <- reactiveVal(FALSE)
-    #observe({
-    #  prj1_val <- callModule(absolutePanelModule, id = "layers_panel")$prj1
-    #  if (!is.null(prj1_val)) {
-    #    prj1(TRUE)
-    #  }
-    #})
-    #ns_layers_panel <- NS("layers_panel")
-    #prj1_value <- callModule(absolutePanelModule, "layers_panel", ns_layers_panel)
-    # Call module with reactive values
-    #  callModule(sel.Layer, "selLayer_module", myMap, layers)    
-   # print(prj1)
-    #ns <- session$ns("layers_panel")
-    callModule(sel.Layer, "selLayer_module", myMap, layers)
+  observe({
+    if(input$tabs == 'dist'){
+      output$buffer_module <- renderUI({
+        bufferFeatUI("buffer_module")  # Pass checkbox state as argument
+      })
+      callModule(bufferFeatServer, "buffer_module", "main", "Module Guidance")
+    }
+    
+  })  
+
+  observeEvent(input$`buffer_module-viewpanel`, {
+    if (isTRUE(input$`buffer_module-viewpanel`)) {
+      updateTabsetPanel(session, "main", selected = "Custom buffers")
+    } else {
+      updateTabsetPanel(session, "main", selected = "Map")
     }
   })
   

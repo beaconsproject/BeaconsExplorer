@@ -57,8 +57,8 @@ conf.SA <- function(input, output, session, SA, catch_4326, selected_catchments,
   }
   myMap %>%
     clearGroup("Study area") %>%
-    clearGroup("Catchments") %>%
-    clearGroup("clear_button") %>%
+    clearGroup("Catchments") %>% 
+    clearControls() %>%
     addPolygons(data = region(), fill = FALSE, color = "blue", weight = 4, group = "Study area", options = leafletOptions(pane = "ground")) %>%
     addLayersControl(overlayGroups = c("Study area","Ecoregions", "FDAs","Protected areas", "Caribou ranges"),
                      options = layersControlOptions(collapsed = FALSE)) %>%

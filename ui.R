@@ -10,58 +10,59 @@ tagList(
     windowTitle = "BEACONs Explorer",
     tabPanel("Intro", value = 'intro'),
     tabPanel("Data Initialization", value = 'data'),
-    tabPanel("Disturbance Analysis", value = 'footprint'),
+    tabPanel("Disturbance Analysis", value = 'dist'),
     navbarMenu("Support", icon = icon("life-ring"),
                HTML('<a href="https://beaconsproject.ualberta.ca/" target="_blank">BEACONs Homepage</a>'),
                HTML('<a href="https://github.com/beaconsproject/geopackage_creator" target="_blank">Github Page</a>'),
                HTML('<a href="https://github.com/beaconsproject/wallace/issues" target="_blank">GitHub Issues</a>'),
                HTML('<a href="mailto: pierre.vernier@gmail.com" target="_blank">Send Email</a>')),
-    tabPanel(NULL, icon = icon("power-off"), value = "_stopapp")
+    tabPanel(NULL, icon = icon("power-off"), value = "_stopapp"),
   ),
   tags$div(
     useShinyjs(),
     class = "container-fluid",
     fluidRow(
       column(4,
-        wellPanel(
-          conditionalPanel(
-            condition="input.tabs == 'intro'",
-            includeMarkdown("Rmd/text_intro_tab.Rmd")
-          ),
-          # OBTAIN OCCS ####
-          conditionalPanel(
-             condition="input.tabs == 'data'",
-             tabsetPanel(
-             tabPanel("Component",
-                      div("Create Data Package", class = "moduleName"),
-                      help_comp_ui("dataHelp"),
-                      radioButtons(inputId ="geoSel", 
-                                   label = "Choose data format:",
-                                   choices = c("Geopackage" = 'gpkg', "Shapefile" = 'shp'),
-                                   selected = character(0),
-                                   inline = TRUE),
-                      uiOutput("upload_module"),
-                      uiOutput("editSA_module"),
-                      uiOutput("selLayer_module")
-                      ) 
-             )  
-          ),
-          conditionalPanel(
-            condition="input.tabs == 'footprint'",
-            tabsetPanel(
-              tabPanel("Component",
-                       div("Create Footprint Map", class = "moduleName"),
-              ), 
-              tabPanel("Statistics table", "This is a test")
-            )  
-          )
-        )
+             wellPanel(
+               conditionalPanel(
+                 condition="input.tabs == 'intro'",
+                 includeMarkdown("Rmd/text_intro_tab.Rmd")
+               ),
+               # OBTAIN OCCS ####
+               conditionalPanel(
+                 condition="input.tabs == 'data'",
+                 tabsetPanel(
+                   tabPanel("Component",
+                            div("Create Data Package", class = "moduleName"),
+                            help_comp_ui("dataHelp"),
+                            uiOutput("radio_buttons_ui"),
+                            uiOutput("upload_module"),
+                            uiOutput("editSA_module"),
+                            hidden(div(id = "modalButtonContainer", 
+                                       strong("1. Upload additional Features"),
+                                       modalDialogUI("modal"))),
+                            uiOutput("selLayer_module"),
+                            uiOutput("switch_component")
+                   ) 
+                 )  
+               ),
+               conditionalPanel(
+                 condition="input.tabs == 'dist'",
+                 tabsetPanel(
+                   tabPanel("Component",
+                            div("Create Footprint Map", class = "moduleName"),
+                            help_comp_ui("distHelp"),
+                            uiOutput("buffer_module")
+                   ), 
+                   tabPanel("Statistics table", "This is a test")
+                 )  
+               )
+             )
       ),
       # --- RESULTS WINDOW ---
       column(8,
              conditionalPanel(
                "input.tabs != 'intro' & input.tabs != 'rep'",
-               #"input.tabs == 'geo'",
                tabsetPanel(
                  id = 'main',
                  tabPanel(
@@ -75,12 +76,20 @@ tagList(
                                  selected = 'Esri.NatGeoWorldMap'
                      )
                    ),
-                   #uiOutput("layers_panel")# add absolute panel on top of leaflet
                  ),
                  tabPanel(
                    'Module Guidance', icon = icon("circle-info"),
                    uiOutput('gtext_module')
-                 )
+                 )#,
+#                 tabPanel(
+#                   "Custom buffers",
+#                   checkboxInput("custom_buffers", "Use custom buffers", value = FALSE),
+#                   tags$h4("Define linear buffer sizes:"),
+#                   matrixInput("linear_buffers", value = m1, rows = list(names = FALSE, extend = TRUE), cols = list(names = TRUE)),
+#                   tags$h4("Define areal buffer sizes:"),
+ #                  matrixInput("areal_buffers", value = m2, rows = list(names = FALSE, extend = TRUE), cols = list(names = TRUE))
+#                 )
+                 
                )
              )
       )

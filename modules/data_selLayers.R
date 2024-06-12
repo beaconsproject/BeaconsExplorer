@@ -5,7 +5,9 @@
 selLayerUI <- function(id) {
   ns <- NS(id)
   fluidPage(
-    strong("1. Select optional spatial layers from panel on the right to include."),
+    useShinyjs(),
+    tags$hr(),
+    strong("2. Select optional spatial layers from panel on the right to include."),
     fluidRow(
       column(6,
              ("Projected"),
@@ -25,26 +27,24 @@ selLayerUI <- function(id) {
                  checkboxInput(ns("spp3"), label = 'Key Wetlands 2011', value = F))
       )
     ),
-    strong("2. Select range of fires."),
+    strong("3. Select range of fires."),
     sliderInput(ns("minmax"), label="Range of fires to include:", min=1920, max=2020, value=c(1960, 2020)),
     tags$hr(),
-    strong("3. Select optional linear and areal features"),
-    fileInput(inputId = ns("add_line"), label = "Upload additional linear features", multiple = TRUE, accept=c('.gpkg', '.shp','.dbf','.sbn','.sbx','.shx','.prj','.cpg'), placeholder = "Optional"),
-    div(style = "margin-top: -40px"),
-    fileInput(inputId = ns("add_poly"), label = "Upload additional areal features", multiple = TRUE, accept=c('.gpkg', '.shp','.dbf','.sbn','.sbx','.shx','.prj','.cpg'), placeholder = "Optional"),
-    tags$hr(),
-    div(style = "margin-top: -40px"),
+    #div(style = "margin-top: -40px"),
     strong("4. Preview layers on the map"),
     actionButton(ns("previewLayers"), "Preview", icon = icon(name = "map-location-dot", lib = "font-awesome"), class = "btn-primary", style="width:200px"),
     tags$hr(),
-    strong("Layers previewed on the map will be saved and use in the disturbance module. "),
-    actionButton(ns("switchDistComp"), "Run disturbance analysis", icon = icon(name = "rotate", lib = "font-awesome"), class = "btn-warning", style="width:250px"),
-    
+    strong("Layers previewed on the map will be saved and use in the disturbance analysis.")
   )
 }
 
+
+
 # Select Layer server module
-sel.Layer <- function(input, output, session, myMap, layers) {
+selLayer <- function(input, output, session, myMap, layers, uploadedFeatures) {
+  
+  ns <- session$ns
+  
   #set min max outside of the observe scope to allow to update
   observeEvent(input$minmax,{
     req(layers$fires)
@@ -73,70 +73,70 @@ sel.Layer <- function(input, output, session, myMap, layers) {
       hideGroup(c("Intactness 2000", "Intactness 2020", "Protected areas"))
     myMap
   })
-    
+  
   observeEvent(input$previewLayers,{
+    req(uploadedFeatures)
     #browser()
-    # Function to create reactive values and observe blocks
-    # Generate namespace
+    myMap %>%
+      clearGroup("Quartz Claims") %>%
+      clearGroup("Placer Claims") %>%
+      clearGroup("Caribou Herds") %>%
+      clearGroup("Thinhorn Sheep") %>%
+      clearGroup("Key Wetlands 2011") 
+    grps <- NULL 
+    toShow <- NULL
     
-    #is_checked <- input$layers_panel$prj1
-    #if (is_checked) {
-    #  tprj1 <- prj1
-    #if(input$previewLayers>0){
-    
-      grps <- NULL
-      toShow <- NULL
-      #Isolate allow to wait the trigger previewLayers to be pushed before looking into Optionals
-      tprj1 <- isolate(input$prj1)
-      tprj2 <- isolate(input$prj2)
-      tspp1 <- isolate(input$spp1)
-      tspp2 <- isolate(input$spp2)
-      tspp3 <- isolate(input$spp3)
+    #Isolate allow to wait the trigger previewLayers to be pushed before looking into Optionals
+    tprj1 <- isolate(input$prj1)
+    tprj2 <- isolate(input$prj2)
+    tspp1 <- isolate(input$spp1)
+    tspp2 <- isolate(input$spp2)
+    tspp3 <- isolate(input$spp3)
       
-      if (tprj1 & length(layers$prj1)>0) { 
+    if (tprj1 & length(layers$prj1)>0) { 
         prj1 <- layers$prj1 %>% project("EPSG:4326")
         myMap <- myMap %>% addPolygons(data=prj1, color='red', fill=T, weight=1, group="Quartz Claims")
         grps <- c(grps,"Quartz Claims")
-      }
-      if (tprj2 & length(layers$prj2)>0) {
+    }
+    if (tprj2 & length(layers$prj2)>0) {
         prj2 <- layers$prj2 %>% project("EPSG:4326")
         myMap <- myMap %>% addPolygons(data=prj2, color='red', fill=T, weight=1, group="Placer Claims")
         grps <- c(grps,"Placer Claims")
-      }
-      if (tspp1 & length(layers$spp1)>0) {
+    }
+    if (tspp1 & length(layers$spp1)>0) {
         spp1 <- layers$spp1 %>% project("EPSG:4326")
         myMap <- myMap %>% addPolygons(data=spp1, color='red', fill=T, weight=1, group="Caribou Herds")
         grps <- c(grps,"Caribou Herds")
-      }
-      if (tspp2 & length(layers$spp2)>0) {
+    }
+    if (tspp2 & length(layers$spp2)>0) {
         spp2 <- layers$spp2 %>% project("EPSG:4326")
         myMap <- myMap %>% addPolygons(data=spp2, color='red', fill=T, weight=1, group="Thinhorn Sheep")
         grps <- c(grps,"Thinhorn Sheep")
-      }
-      if (tspp3 & length(layers$spp3)>0) {
+    }
+    if (tspp3 & length(layers$spp3)>0) {
         spp3 <- layers$spp3 %>% project("EPSG:4326")
         myMap <- myMap %>% addPolygons(data=spp3, color='red', fill=T, weight=1, group="Key Wetlands 2011")
         grps <- c(grps,"Key Wetlands 2011")
-      }
-      if (!is.null(input$add_poly)) {
-        x_poly <- add_poly() %>% project("EPSG:4326")
+     }
+    if (!is.null(uploadedFeatures$add_poly())) {
+        x_poly <- uploadedFeatures$add_poly() %>% project("EPSG:4326")
         myMap <- myMap %>% addPolygons(data=x_poly, color='#330333', fill=T, weight=1, group="Additonal areal features")
         toShow <- c(toShow,"Additonal areal features")
-      }
-      if (!is.null(input$add_line)) {
-        x_line <- add_line() %>% project("EPSG:4326")
+    }
+    if (!is.null(uploadedFeatures$add_line())) {
+        x_line <- uploadedFeatures$add_line() %>% project("EPSG:4326")
         myMap <- myMap %>% addPolylines(data=x_line, color='#330333', fill=F, weight=2, group="Additional linear features")
         toShow <- c(toShow,"Additional linear features")
-      }
-      myMap <- myMap %>% #addLayersControl(position = "topright",
+    }
+    myMap <- myMap %>% #addLayersControl(position = "topright",
         addLayersControl(position = "topright",
                          baseGroups=c("Esri.WorldTopoMap", "Esri.WorldImagery"),
                          overlayGroups = c("Database limits","Study area", "Linear disturbances", "Areal disturbances", "Fires","Intactness 2000", "Intactness 2020", "Protected areas", toShow, grps),
                          options = layersControlOptions(collapsed = FALSE)) %>%
         hideGroup(c("Database limits", "Intactness 2000", "Intactness 2020", "Protected areas", grps))
     myMap
-    #}
   })
+  
 }  
 
 
