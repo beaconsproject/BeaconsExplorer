@@ -88,7 +88,6 @@ server <- function(input, output, session) {
     }
   })
 
-  
 
   #### Map-related observers ####
   observe({

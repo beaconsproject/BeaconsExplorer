@@ -1,3 +1,4 @@
+
 modalDialogUI <- function(id) {
   ns <- NS(id)
   tagList(
@@ -17,6 +18,7 @@ modalDialogServer <- function(input, output, session) {
                    choices = list("Shapefile" = "shp", "GeoPackage" = "gpkg"),
                    selected = "shp"),
       uiOutput(ns("dynamicUploadLineUI")),
+      uiOutput(ns("colLine_select")), # New UI output for column selection
       radioButtons(ns("polyType"), "Select File Type for polygon features:",
                    choices = list("Shapefile" = "shp", "GeoPackage" = "gpkg"),
                    selected = "shp"),
@@ -48,28 +50,66 @@ modalDialogServer <- function(input, output, session) {
     })
   })
   
-  upload_features <- reactiveValues(add_line = reactiveVal(NULL),
-                                    add_poly =reactiveVal(NULL))
-  #sa_data_line <- reactiveVal(NULL)
- # sa_data_poly <- reactiveVal(NULL)
+  upload_features <- reactiveValues(add_line =reactiveVal(NULL),
+                                    add_poly =reactiveVal(NULL),
+                                    col_line =reactiveVal(NULL),
+                                    col_poly =reactiveVal(NULL))
+
+  # Separate observers for file uploads to update the reactive value
+  observeEvent(callModule(gpkg_upload, "upload_line"), {
+    upload_features$add_line <- callModule(gpkg_upload, "upload_line")
+  })
   
+  observeEvent(callModule(shp_upload, "upload_line"), {
+    upload_features$add_line <- callModule(shp_upload, "upload_line")
+  })
+  
+  # Separate observers for file uploads to update the reactive value
+  observeEvent(callModule(gpkg_upload, "upload_poly"), {
+    upload_features$add_poly <- callModule(gpkg_upload, "upload_poly")
+  })
+  
+  observeEvent(callModule(shp_upload, "upload_poly"), {
+    upload_features$add_poly <- callModule(shp_upload, "upload_poly")
+  })
+  
+  # Observe changes in the uploaded file and update the column select input
+  observeEvent(upload_features$add_line(), {
+    sf_obj <- upload_features$add_line()
+    if (!is.null(sf_obj)) {
+      col_names <- names(sf_obj)
+      output$colLine_select <- renderUI({
+        selectInput(ns("line_column"), "Select Column:", choices = col_names)
+      })
+    }
+  })
+  
+  observeEvent(upload_features$add_poly(), {
+    sf_obj <- upload_features$add_poly()
+    if (!is.null(sf_obj)) {
+      col_names <- names(sf_obj)
+      output$colPoly_select <- renderUI({
+        selectInput(ns("poly_column"), "Select Column:", choices = col_names)
+      })
+    }
+  })
+  
+  ################################################################################################
+  # Set layers choices
+  ################################################################################################
+  observeEvent(!is.null(input$line_column), {
+    upload_features$col_line <- input$line_column
+  })
+  
+  observeEvent(!is.null(input$poly_column), {
+    upload_features$col_poly <- input$poly_column
+  })
+
   observeEvent(input$confirmUpload, {
-    if (input$lineType == "gpkg") {
-      #sa_data_line(callModule(gpkg_upload, "upload_line"))
-      upload_features$add_line <- callModule(shp_upload, "upload_line")
-    } else if (input$lineType == "shp") {
-      #sa_data_line(callModule(shp_upload, "upload_line"))
-      upload_features$add_line <- callModule(shp_upload, "upload_line")
-    }
-    if (input$polyType == "gpkg") {
-      #sa_data_poly(callModule(gpkg_upload, "upload_poly"))
-      upload_features$add_poly <- callModule(shp_upload, "upload_poly")
-    } else if (input$polyType == "shp") {
-     # sa_data_poly(callModule(shp_upload, "upload_poly"))
-      upload_features$add_poly <- callModule(shp_upload, "upload_poly")
-    }
+    # Handle the file upload confirmation
     removeModal()
   })
+  
   output$upload_line <- renderUI({
     req(upload_features$add_line())
     tagList(
