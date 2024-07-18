@@ -12,7 +12,9 @@ reactiveLayersModule <- function(input, output, session, region) {
                  prj2 = reactiveVal(NULL),
                  spp1 = reactiveVal(NULL),
                  spp2 = reactiveVal(NULL),
-                 spp3 = reactiveVal(NULL)
+                 spp3 = reactiveVal(NULL),
+                 footprint = reactiveVal(NULL),
+                 intactness = reactiveVal(NULL)
   )
   
   observe({

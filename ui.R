@@ -80,16 +80,7 @@ tagList(
                  tabPanel(
                    'Module Guidance', icon = icon("circle-info"),
                    uiOutput('gtext_module')
-                 )#,
-#                 tabPanel(
-#                   "Custom buffers",
-#                   checkboxInput("custom_buffers", "Use custom buffers", value = FALSE),
-#                   tags$h4("Define linear buffer sizes:"),
-#                   matrixInput("linear_buffers", value = m1, rows = list(names = FALSE, extend = TRUE), cols = list(names = TRUE)),
-#                   tags$h4("Define areal buffer sizes:"),
- #                  matrixInput("areal_buffers", value = m2, rows = list(names = FALSE, extend = TRUE), cols = list(names = TRUE))
-#                 )
-                 
+                 )
                )
              )
       )

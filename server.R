@@ -11,10 +11,13 @@ server <- function(input, output, session) {
   
   pop = ~paste("CATCHNUM:", CATCHNUM, "<br>Area (km²):", round(Area_total/1000000,1), "<br>Intactness (%):", intact*100 )
   
+
   # tab and module-level reactives
   module <- reactive({
     input$tabs
   })
+  
+  insertedTabs <- reactiveVal(c())
   
   ######################## #
   ### GUIDANCE TEXT ####
@@ -180,13 +183,13 @@ server <- function(input, output, session) {
   observe({
     if(input$tabs == 'dist'){
       output$buffer_module <- renderUI({
-        bufferFeatUI("buffer_module")  # Pass checkbox state as argument
+        bufferFeatUI("buffer_module")# Pass checkbox state as argument
       })
-      callModule(bufferFeatServer, "buffer_module", "main", "Module Guidance")
+      callModule(bufferFeatServer, "buffer_module", "main", "Module Guidance", layers, insertedTabs, uploadedFeat, myMap)
     }
     
-  })  
-
+  }) 
+  
   observeEvent(input$`buffer_module-viewpanel`, {
     if (isTRUE(input$`buffer_module-viewpanel`)) {
       updateTabsetPanel(session, "main", selected = "Custom buffers")
