@@ -1,0 +1,66 @@
+TYPE_FEATURE,TYPE_INDUSTRY,TYPE_DISTURBANCE,BUFFER_SIZE,DESCRIPTION
+Areal,Agriculture,Agriculture,500,"Farms, ranches, or other agricultural areas"
+Areal,Forestry,Forestry,500,Cut blocks or other forestry related activities
+Areal,Mining,Building,500,A building footprint or the building and the surrounding land related to mining activities
+Areal,Mining,Drill Pad,500,Drill pad features related to mineral exploration activities
+Areal,Mining,Fuel Cache,500,Remote caches of fuel allowing for mineral exploration activities (will often have fuel tanks and barrels)
+Areal,Mining,Gravel Pit / Quarry,500,Pit or quarry for mining gravel or aggregate
+Areal,Mining,Laydown area,500,Areas used to store materials and equipment for mining operations
+Areal,Mining,Mining,500,Miscellaneous or unknown mining activities
+Areal,Mining,Placer Mining - Minor,500,Placer mining area with little disturbance
+Areal,Mining,Placer Mining - Significant,500,Placer mining area with greater disturbance
+Areal,Mining,Quartz Mining - Minor,500,Quartz mining area with little disturbance
+Areal,Mining,Quartz Mining - Significant,500,Quartz mining area with greater disturbance
+Areal,Mining,Tailing Pond,500,Tailing pond associated with mining activity
+Areal,Mining,Camp,500,Mining camp
+Areal,Oil and Gas,Well Pad,500,Cleared area surrounding oil or gas well
+Areal,Oil and Gas,Unknown,500,PV added 2024-02-27
+Areal,Rural,Camp,500,"Any camp outside of mining areas, including fishing/hunting camps, ENV conservation officer cabins/camps, outfitters, etc."
+Areal,Rural,Homestead,500,Rural dwelling and associated land
+Areal,Transportation,Airstrip,500,Airport or Airstrip
+Areal,Transportation,Clearing,500,"Clearings that are related to transportation but could not be clearly attributed as a turn area, pullout, road cut and fill, etc."
+Areal,Transportation,Gravel Pit / Quarry,500,Gravel pits related to transportation
+Areal,Transportation,Pullout / Turn Area,500,An area associated with transportation and is intended as a vehicle pullout or turn area
+Areal,Transportation,Road Cut and Fill,500,Cut slopes and moved earth for road construction purposes
+Areal,Transportation,Unknown,500,PV added 2023-11-28; Road Corridor
+Areal,Unknown,Clearing,500,A tract of land devoid (or nearly devoid) of natural land cover and suspected to be anthropogenic in nature
+Areal,Unknown,Gravel Pit / Quarry,500,A gravel pit with unknown related industry
+Areal,Unknown,Unknown,500,"Unable to identify from imagery, but suspected to be anthropogenic"
+Areal,Urban,Building,500,Visible building or structure
+Areal,Urban,Cemetery,500,Cemetery
+Areal,Urban,Clearing,500,Miscellaneous urban clearings
+Areal,Urban,Cul-de-sac / Turn Area,500,A turn area associated with transportation or road cul-de-sac
+Areal,Urban,Dam,500,Barrier impounding water or stream
+Areal,Urban,Golf Course,500,Recreational golfing area
+Areal,Urban,Industrial,500,"Areas that are designated for industrial uses: factories, tank farm, transportation area"
+Areal,Urban,Institutional,500,"Any institutional buildings and immediate cleared area: School, government, etc."
+Areal,Urban,Landfill,500,Site used for disposal of waste materials
+Areal,Urban,Pond,500,"Standing body of water, created anthropogenically; includes sewage lagoons, wastewater facilities, and artificial bodies of water"
+Areal,Urban,Recreation Area,500,Visible disturbance in Urban / Rural parks and recreation areas
+Areal,Urban,Rural Residential,500,Land use in which housing predominates in an urban or community setting
+Areal,Urban,Tower,500,"A tall structure, possibly used for communications or forestry"
+Areal,Urban,Urban,500,Miscellaneous or unknown urban features
+Linear,Mining,Diversion Channel,500,An engineered linear bypass feature that redirects a watercourse around a mining feature such as a tailings pond
+Linear,Mining,Survey / Cutline,500,"A linear cleared area through undeveloped land, used for line-of-sight surveying; impossible to distinguish whether associated with quartz or placer mining (overlapping or unclear claims information)"
+Linear,Mining,Survey / Cutline - Placer,500,"A linear cleared area through undeveloped land, used for line-of-sight surveying; associated with placer mining (identified using claims information and/or other indicators)"
+Linear,Mining,Survey / Cutline - Quartz,500,"A linear cleared area through undeveloped land, used for line-of-sight surveying; associated with quartz mining (identified using claims information and/or other indicators)"
+Linear,Mining,Trench,500,"A long, narrow excavation dug to expose vein or ore structure"
+Linear,Mining,Unknown,500,Unknown linear mining disturbance
+Linear,Oil and Gas,Pipeline,500,Visible pipeline or pipeline Right-of-Way (above- or below-ground)
+Linear,Oil and Gas,Seismic Line,500,Seismic lines
+Linear,Rural,Driveway,500,A driveway in a rural area
+Linear,Rural,Fence,500,A fence in a rural area
+Linear,Transportation,Access Assumed,500,"A linear feature that is assumed to be an access road, but could also be a trail"
+Linear,Transportation,Access Road,500,"A road or narrow passage whose primary function is to provide access for resource extraction (i.e. mining, forestry) and may also have served in providing public access to the backcountry"
+Linear,Transportation,Arterial Road,500,A major thoroughfare with medium to large traffic capacity
+Linear,Transportation,Local Road,500,"A low-speed thoroughfare, provides access to front of properties, including those with potential public restrictions such as trailer parks, First Nations land, private estate, seasonal residences, gravel pits (NRN definition for Local Street/Local Strata/Local Unknown). Shows signs of regular use."
+Linear,Transportation,Right of Way,500,For Road Rights as attributed in the land parcels ancillary data
+Linear,Transportation,Trail,500,"Path or track (typically <1.5 m wide) used for walking, cycling, ORV, or other backcountry activities. (Note: trails used for mining activities are Access Roads.)"
+Linear,Transportation,Unpaved Road,500,Dirt or gravel road (typically >1.5 m wide) that does not necessarily access remote resources
+Linear,Transportation,Railway,500,PV added 2023-11-28
+Linear,Transportation,Unknown,500,"PV added 2023-11-28; Diversion Channel, Unknown NRN"
+Linear,Unknown,Right of Way,500,A right of way with unknown industry type
+Linear,Unknown,Survey / Cutline,500,"A linear cleared area through undeveloped land, used for line-of-sight surveying. A cutline may not always be associated with mineral exploration, therefore, Type: Unknown was used to differentiate all cutlines that were outside of mineral exploration."
+Linear,Unknown,Unknown,500,"Unclassified, or unable to identify type based on imagery, but suspected to be anthropogenic"
+Linear,Utility,Electric Utility Corridor,500,"Corridor usually running parallel to highway, where transmission lines or other utilities are visible"
+Linear,Utility,Unknown,500,Unknown linear feature assumed to be a utility corridor; ancillary data is unclear
