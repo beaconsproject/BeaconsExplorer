@@ -1,20 +1,20 @@
 # Define a module to manage the reactive values
-reactiveLayersModule <- function(input, output, session, region) {
+reactiveLayersModule <- function(input, output, session, layers, region) {
   layers <- reactiveValues(catch_3578 = reactiveVal(NULL),
-                 catch_4326 = reactiveVal(NULL),
-                 line = reactiveVal(NULL),
-                 poly = reactiveVal(NULL),
-                 fires = reactiveVal(NULL),
-                 ifl_2000 = reactiveVal(NULL),
-                 ifl_2020 = reactiveVal(NULL),
-                 pa_2021 = reactiveVal(NULL),
-                 prj1 = reactiveVal(NULL),
-                 prj2 = reactiveVal(NULL),
-                 spp1 = reactiveVal(NULL),
-                 spp2 = reactiveVal(NULL),
-                 spp3 = reactiveVal(NULL),
-                 footprint = reactiveVal(NULL),
-                 intactness = reactiveVal(NULL)
+                           catch_4326 = reactiveVal(NULL),
+                           line = reactiveVal(NULL),
+                           poly = reactiveVal(NULL),
+                           fires = reactiveVal(NULL),
+                           ifl_2000 = reactiveVal(NULL),
+                           ifl_2020 = reactiveVal(NULL),
+                           pa_2021 = reactiveVal(NULL),
+                           prj1 = reactiveVal(NULL),
+                           prj2 = reactiveVal(NULL),
+                           spp1 = reactiveVal(NULL),
+                           spp2 = reactiveVal(NULL),
+                           spp3 = reactiveVal(NULL),
+                           footprint = reactiveVal(NULL),
+                           intactness = reactiveVal(NULL)
   )
   
   observe({
@@ -62,18 +62,4 @@ reactiveLayersModule <- function(input, output, session, region) {
   return(layers)
 }
 
-
-# set a reactive value for selected catchments
-selected_catchments <- reactiveValues( # this is the list of currently selected catchments
-  catchnum = c()
-)
-  
-# section 2 in crs 4326
-ecoregions <- reactive({
-  vect(placemarks, 'ecoregions')
-})
-  
-fdas<- reactive({
-  vect(placemarks, 'fdas')
-})
   

@@ -8,6 +8,7 @@ server <- function(input, output, session) {
   layers <- callModule(reactiveLayersModule, id = "reactiveLayersModule", region = NULL)
   render_layers_panel <- reactiveVal(FALSE)
   uploadedFeat <- reactiveVal(NULL)
+  layers_final <- reactiveVal(NULL)
   
   pop = ~paste("CATCHNUM:", CATCHNUM, "<br>Area (km²):", round(Area_total/1000000,1), "<br>Intactness (%):", intact*100 )
   
@@ -45,7 +46,7 @@ server <- function(input, output, session) {
       addMapPane(name = "ground", zIndex=380) %>%
       addMapPane(name = "overlay", zIndex=420) %>%
       setView(lng = -130, lat = 64, zoom = 5)%>%
-      addProviderTiles("Esri.NatGeoWorldMap", group="Esri.NatGeoWorldMap") %>%
+      addProviderTiles("Esri.NatGeoWorldMap", group="baseMap") %>%
       leafem::addMouseCoordinates()
   })
   # create map proxy to make further changes to existing map
@@ -53,8 +54,22 @@ server <- function(input, output, session) {
 
   # change provider tile option
   observe({
-    myMap %>% addProviderTiles(input$bmap)
+    if(input$bmap == "Blank.map"){
+      myMap %>% 
+        clearGroup("baseMap") %>%
+        addTiles(urlTemplate = "", group="baseMap")
+    }else{
+      myMap %>% 
+        clearGroup("baseMap") %>%
+        addProviderTiles(input$bmap, group="baseMap")
+    }
   })
+  
+  ########################## #
+  ########################## #
+  ### DATA INITIALIZATION  ###
+  ########################## #
+  ########################## #
   
   # Render selected catchments. None at startup
   observe({
@@ -66,13 +81,18 @@ server <- function(input, output, session) {
                   color = 'black', weight = 1, fillColor = "grey", fillOpacity = 0.7,
                   layerId = data_select$CATCHNUM, group = "Selected") 
   })
+ 
+  ############################################################################################################ #
+  ### RUN geoSel MODULE   ##
+  # 1. upload_module: Select study area
+  # 2. Map 
+  ############################################################################################################ #
   
   output$radio_buttons_ui <- renderUI({
     radioButtons("geoSel", "Choose File Type:", choices = c("shp", "gpkg"), inline = TRUE)
   })
   
   # Provide GEO UI according to input format (gpkg, shp)
-  #observeEvent(input$geoSel, {
   observe({
     req(input$geoSel)
      if (up_module() == "gpkg") {
@@ -108,11 +128,19 @@ server <- function(input, output, session) {
       addPolygons(data=caribourange_4326, fillColor = "Brown", fillOpacity=0.7, weight=0.1, group="Caribou ranges", options = leafletOptions(pane = "ground")) %>%
       addPolygons(data=pas_4326, fillColor = "green",  fillOpacity=0.5, weight=0.1, group="Protected areas", options = leafletOptions(pane = "ground")) %>%
       addLayersControl(position = "topright",
-                         baseGroups=c("Esri.WorldTopoMap", "Esri.WorldImagery"),
                          overlayGroups = c("Study area","Ecoregions", "FDAs","Protected areas", "Caribou ranges"),
                          options = layersControlOptions(collapsed = FALSE)) %>%
         hideGroup(c("Ecoregions","FDAs","Protected areas", "Caribou ranges"))
     
+
+    ############################################################################################################ #
+    ### RUN editSA MODULE   ##
+    # 1. edit.SA fct: Select underlying catchment and show them on the map (optional)
+    # 2. update.SA fct: Update the shape of the study area according to the catchment selection (optional)
+    # 3. conf.SA: Confirm the study area which trigger the intersect with all overlying layers (reactiveLayersModule)
+    ############################################################################################################ #
+
+    # Edit Study area boundary
     output$editSA_module <- renderUI({
       editSAUI("editSA_module")
     })
@@ -148,7 +176,8 @@ server <- function(input, output, session) {
   
   # Confirm map when conf_sa_button is pressed
   observeEvent(input[["editSA_module-conf_sa_button"]], {
-    callModule(conf.SA, id = "confSA", sa_spat()(), layers$catch_4326, selected_catchments, myMap)
+    region <-callModule(conf.SA, id = "confSA", sa_spat()(), layers$catch_4326, selected_catchments, myMap)
+    sa_spat_select(region)
     selected_catchments$catchnum <- NULL
     showModal(modalDialog(
       title = "Study area confirmed. Please select spatial layers",
@@ -161,13 +190,26 @@ server <- function(input, output, session) {
     render_layers_panel(TRUE)
   })
   
+  # If clear selection button is pressed, remove all catchnums from list
+  observeEvent(input$clear_button, {
+    selected_catchments$catchnum <- c()
+  })
+  
+  ############################################################################################################ #
+  ### RUN selLayers MODULE   ##
+  # 1. reactiveLayersModule: update reactiveValue Layers to clip all layers according to final study area
+  # 2. modalDialogServer: Upload custom disturbance if needed
+  # 3. selLayer: Map selected layers and swith to dist tab
+  ############################################################################################################ #
+  
   # Conditionally render selLayerUI only if render_layers_panel is TRUE
   observeEvent(render_layers_panel(), {
+    req(render_layers_panel())
     if (render_layers_panel()) {
       output$selLayer_module <- renderUI({
         selLayerUI("selLayer_module")
       })
-    layers <- callModule(reactiveLayersModule, id = "reactiveLayersModule", region = sa_spat_select())
+    layers <- callModule(reactiveLayersModule, id = "reactiveLayersModule", layers, region = sa_spat_select())
     shinyjs::show("modalButtonContainer")
     uploadedFeatures <- callModule(modalDialogServer, "modal")
     callModule(selLayer, "selLayer_module", myMap, layers, uploadedFeatures)
@@ -178,17 +220,39 @@ server <- function(input, output, session) {
     switchTabButtonServer("switch_component", session, "dist")
     }
   })
+ 
+  ########################### #
+  ########################### #
+  ### DISTURBANCE ANALYSIS  ###
+  ########################### #
+  ########################### #
   
+  ############################################################################################################ #
+  ### RUN dist_buffer MODULE   ##
+  # 1. reactiveLayersModule: update reactiveValue Layers to clip all layers according to final study area
+  # 2. bufferFeatServer: Select buffer size 
+  # 3. buff.Stats: Compute statistics
+  # 4. Save gpkg to potential use
+  ############################################################################################################ #
   observe({
     if(input$tabs == 'dist'){
       output$buffer_module <- renderUI({
         bufferFeatUI("buffer_module")# Pass checkbox state as argument
       })
-      callModule(bufferFeatServer, "buffer_module", "main", "Module Guidance", layers, insertedTabs, uploadedFeat, myMap)
+      output$distdwd_module <- renderUI({
+        downloadModuleUI("distdwd_module")
+      })
+      
+      # Nested observeEvent for genIntactMap button press
+      layers <- callModule(reactiveLayersModule, id = "reactiveLayersModule", layers, region = sa_spat_select())
+      layers <-callModule(bufferFeatServer, "buffer_module", "main", "Module Guidance", layers, insertedTabs, uploadedFeat, region = sa_spat_select(), myMap)
+      outbuffstats <-callModule(buff.Stats, id = "buffStats", layers, sa_spat_select())
+      output$buffStats <- renderTable({
+        outbuffstats()
+      })
     }
-    
   }) 
-  
+
   observeEvent(input$`buffer_module-viewpanel`, {
     if (isTRUE(input$`buffer_module-viewpanel`)) {
       updateTabsetPanel(session, "main", selected = "Custom buffers")
@@ -197,10 +261,14 @@ server <- function(input, output, session) {
     }
   })
   
-  # If clear selection button is pressed, remove all catchnums from list
-  observeEvent(input$clear_button, {
-    selected_catchments$catchnum <- c()
+  # Update map when view_sa_button is pressed
+  observeEvent(input[["buffer_module-genIntactMap"]], {
+    req(input[["buffer_module-genIntactMap"]]>1)
+    layers <- callModule(bufferFeatServer, "buffer_module", "main", "Module Guidance", layers, insertedTabs, uploadedFeat, region = sa_spat_select(), myMap)
+    callModule(buff.Stats, id = "buffStats", layers, sa_spat_select())
   })
+  
+
   
 
 }

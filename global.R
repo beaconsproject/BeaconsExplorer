@@ -1,8 +1,6 @@
-#library(wallace)
 library(glue)
 library(leaflet)
 library(shiny)
-#library(sf)
 library(gpkg)
 library(purrr)
 library(markdown)
@@ -11,10 +9,8 @@ library(shinyjs) # toggle
 library(tidyverse)
 library(dplyr)
 library(shinyBS)
-#library(shinydashboard)
-#library(shinycssloaders)
 library(shinyMatrix)
-
+library(bslib)
 # data component related
 bp <- 'www/data/demo_datasets.gpkg'
 spp <- 'www/data/species.gpkg'
@@ -27,6 +23,21 @@ limits <- vect(bp, 'fda') %>% terra::union() %>% project("EPSG:4326")
 m1 <- as.matrix(read_csv('docs/cas.csv')[42:66,2:4]) #%>% filter(TYPE_DISTURBANCE %in% x1))
 m2 <- as.matrix(read_csv('docs/cas.csv')[1:41,2:4]) #%>% filter(TYPE_DISTURBANCE %in% x2))
 
+
+
+# set a reactive value for selected catchments
+selected_catchments <- reactiveValues( # this is the list of currently selected catchments
+  catchnum = c()
+)
+
+# section 2 in crs 4326
+ecoregions <- reactive({
+  vect(placemarks, 'ecoregions')
+})
+
+fdas<- reactive({
+  vect(placemarks, 'fdas')
+})
 
 
 MB <- 1024^2

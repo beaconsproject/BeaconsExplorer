@@ -12,6 +12,15 @@
   font-size:16pt;
   font-weight:bold;
 }
+
+.bottom-fixed {
+  position: fixed;
+  bottom: 10px;  /* Adjust as needed */
+  left: 10px;   /* Adjust as needed */
+  z-index: 1000; /* Ensure it stays on top */
+  width: 250px;  /* Set the width to 250px */
+}
+
 /*
 .navbar-header {
   width: 25% ;

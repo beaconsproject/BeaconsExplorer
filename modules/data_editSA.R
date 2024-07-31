@@ -12,11 +12,9 @@ editSAUI <- function(id) {
 
 
 sa.catch <- function(session, sa_sf, catch) {
-    req(sa_sf)
-    catch.3578 <-catch %>% project("EPSG:3578")
-    catch_int <- terra::intersect(centroids(catch.3578), sa_sf)
-    sa.catch <- catch.3578[catch_int,]
-    return(sa.catch)
+  req(sa_sf)
+  sa.catch <- terra::intersect(centroids(catch), sa_sf)
+  return(sa.catch)
 }  
 
 edit.SA <- function(sa_spat, catch_4326, myMap) {
@@ -43,10 +41,8 @@ update.SA <- function(catch_4326, selected_catchments, myMap) {
 }
 
 conf.SA <- function(input, output, session, SA, catch_4326, selected_catchments, myMap) {
-#conf.SA <- function(SA, catch_4326, selected_catchments, myMap) {
   region <- reactiveVal(NULL)
   if(is.null(selected_catchments$catchnum)){
-    #region <- project(SA, "EPSG:4326")
     region(project(SA, "EPSG:4326"))
   }else{
     data_selected <- catch_4326[catch_4326$CATCHNUM %in% selected_catchments$catchnum,]
@@ -63,5 +59,6 @@ conf.SA <- function(input, output, session, SA, catch_4326, selected_catchments,
     addLayersControl(overlayGroups = c("Study area","Ecoregions", "FDAs","Protected areas", "Caribou ranges"),
                      options = layersControlOptions(collapsed = FALSE)) %>%
     hideGroup(c("Ecoregions","FDAs","Protected areas", "Caribou ranges"))
-  return(region())
+  region <- region() %>% project("EPSG:3578")
+  return(region)
 }

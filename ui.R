@@ -28,7 +28,7 @@ tagList(
                  condition="input.tabs == 'intro'",
                  includeMarkdown("Rmd/text_intro_tab.Rmd")
                ),
-               # OBTAIN OCCS ####
+               # OBTAIN Data ####
                conditionalPanel(
                  condition="input.tabs == 'data'",
                  tabsetPanel(
@@ -52,9 +52,10 @@ tagList(
                    tabPanel("Component",
                             div("Create Footprint Map", class = "moduleName"),
                             help_comp_ui("distHelp"),
-                            uiOutput("buffer_module")
+                            uiOutput("buffer_module"),
+                            uiOutput("distdwd_module")
                    ), 
-                   tabPanel("Statistics table", "This is a test")
+                   tabPanel("Statistics table", tableOutput("buffStats"))
                  )  
                )
              )
@@ -72,7 +73,8 @@ tagList(
                      top = 32, left = 60, width = 150, draggable = TRUE,
                      selectInput("bmap", "",
                                  choices = c("ESRI Imagery" = 'Esri.WorldImagery',
-                                             "ESRI Nat Geo" = 'Esri.NatGeoWorldMap'),
+                                             "ESRI Nat Geo" = 'Esri.NatGeoWorldMap',
+                                             "Blank Background" = "Blank.map"),
                                  selected = 'Esri.NatGeoWorldMap'
                      )
                    ),

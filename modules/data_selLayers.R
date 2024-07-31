@@ -44,7 +44,6 @@ selLayerUI <- function(id) {
 selLayer <- function(input, output, session, myMap, layers, uploadedFeatures) {
   
   ns <- session$ns
-  
   #set min max outside of the observe scope to allow to update
   observeEvent(input$minmax,{
     req(layers$fires)
@@ -67,7 +66,6 @@ selLayer <- function(input, output, session, myMap, layers, uploadedFeatures) {
       addPolygons(data=ifl_2020, fill=T, stroke=F, fillColor='#669966', fillOpacity=0.5, group="Intactness 2020")%>%
       addPolygons(data=pa_2021, fill=T, stroke=F, fillColor='brown', fillOpacity=0.5, group="Protected areas") %>%
       addLayersControl(position = "topright",
-                       #baseGroups=c("Esri.WorldTopoMap", "Esri.WorldImagery"),
                        overlayGroups = c("Study area", "Linear disturbances", "Areal disturbances", "Fires","Intactness 2000", "Intactness 2020", "Protected areas"),
                        options = layersControlOptions(collapsed = FALSE)) %>%
       hideGroup(c("Intactness 2000", "Intactness 2020", "Protected areas"))
@@ -76,7 +74,6 @@ selLayer <- function(input, output, session, myMap, layers, uploadedFeatures) {
   
   observeEvent(input$previewLayers,{
     req(uploadedFeatures)
-    #browser()
     myMap %>%
       clearGroup("Quartz Claims") %>%
       clearGroup("Placer Claims") %>%
@@ -130,7 +127,6 @@ selLayer <- function(input, output, session, myMap, layers, uploadedFeatures) {
     }
     myMap <- myMap %>% #addLayersControl(position = "topright",
         addLayersControl(position = "topright",
-                         baseGroups=c("Esri.WorldTopoMap", "Esri.WorldImagery"),
                          overlayGroups = c("Database limits","Study area", "Linear disturbances", "Areal disturbances", "Fires","Intactness 2000", "Intactness 2020", "Protected areas", toShow, grps),
                          options = layersControlOptions(collapsed = FALSE)) %>%
         hideGroup(c("Database limits", "Intactness 2000", "Intactness 2020", "Protected areas", grps))

@@ -23,6 +23,7 @@ modalDialogServer <- function(input, output, session) {
                    choices = list("Shapefile" = "shp", "GeoPackage" = "gpkg"),
                    selected = "shp"),
       uiOutput(ns("dynamicUploadPolyUI")),
+      uiOutput(ns("colPoly_select")), # New UI output for column selection
       footer = tagList(
         modalButton("Cancel"),
         actionButton(ns("confirmUpload"), "Upload")
@@ -98,10 +99,12 @@ modalDialogServer <- function(input, output, session) {
   # Set layers choices
   ################################################################################################
   observeEvent(!is.null(input$line_column), {
+    req(input$line_column)
     upload_features$col_line <- input$line_column
   })
   
   observeEvent(!is.null(input$poly_column), {
+    req(input$poly_column)
     upload_features$col_poly <- input$poly_column
   })
 
